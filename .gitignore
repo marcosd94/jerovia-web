@@ -1,0 +1,20 @@
+node_modules/
+.next/
+out/
+build/
+# Datos locales y archivos subidos (nunca van a Git)
+data/
+media/
+*.db
+*.db-journal
+# Secretos
+.env
+.env.*
+!.env.example
+# Sistema
+.DS_Store
+Thumbs.db
+*.log
+*.tsbuildinfo
+next-env.d.ts
+public/brand/

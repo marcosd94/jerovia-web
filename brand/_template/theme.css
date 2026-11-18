@@ -1,0 +1,29 @@
+/* Identidad visual de la marca nueva. Cambiá estos valores y el sitio entero cambia de colores y tipografía. */
+@import '@fontsource-variable/bricolage-grotesque';
+@import '@fontsource-variable/instrument-sans';
+
+:root {
+  --ink: #1d2a33; /* texto */
+  --primary: #1f5f8b; /* botones principales */
+  --on-primary: #ffffff; /* texto sobre el color principal */
+  --leaf: #2f7d5b; /* color secundario */
+  --leaf-deep: #12342a; /* bloques oscuros */
+  --fresh: #bfe3d0; /* acento claro */
+  --gold: #f0b429; /* acento cálido */
+  --paper: #f6f9fb; /* fondo del sitio */
+  --card: #ffffff;
+  --line: rgba(29, 42, 51, 0.16);
+
+  /* Colores de las tarjetas de categoría (se eligen en el panel) */
+  --tone1-bg: var(--fresh);
+  --tone1-ink: var(--ink);
+  --tone2-bg: var(--gold);
+  --tone2-ink: var(--ink);
+  --tone3-bg: var(--primary);
+  --tone3-ink: #ffffff;
+  --tone4-bg: var(--leaf);
+  --tone4-ink: #ffffff;
+
+  --font-display: 'Bricolage Grotesque Variable', system-ui, sans-serif;
+  --font-body: 'Instrument Sans Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}

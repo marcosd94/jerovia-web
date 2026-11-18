@@ -1,0 +1,49 @@
+{
+  "name": "jerovia-web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Sitio web + tienda + panel de administración (plantilla white-label). Marca activa: ver brand/active.ts",
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "payload": "payload",
+    "generate:types": "payload generate:types",
+    "generate:importmap": "payload generate:importmap",
+    "seed": "tsx --env-file=.env src/scripts/seed.ts",
+    "brand:use": "node scripts/use-brand.mjs",
+    "sync:brand": "node scripts/sync-brand-assets.mjs",
+    "predev": "node scripts/sync-brand-assets.mjs",
+    "prebuild": "node scripts/sync-brand-assets.mjs"
+  },
+  "dependencies": {
+    "@fontsource-variable/bricolage-grotesque": "^5.2.0",
+    "@fontsource-variable/instrument-sans": "^5.2.0",
+    "@payloadcms/db-postgres": "3.94.0",
+    "@payloadcms/db-sqlite": "3.94.0",
+    "@payloadcms/email-nodemailer": "3.94.0",
+    "@payloadcms/next": "3.94.0",
+    "@payloadcms/richtext-lexical": "3.94.0",
+    "@payloadcms/translations": "3.94.0",
+    "graphql": "^16.8.1",
+    "leaflet": "^1.9.4",
+    "next": "16.4.6",
+    "payload": "3.94.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "sharp": "^0.34.0"
+  },
+  "devDependencies": {
+    "@types/leaflet": "^1.9.22",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}

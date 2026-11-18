@@ -1,0 +1,30 @@
+/* Identidad visual de Jerovia Orgánico. Para otra empresa: copiar brand/_template y cambiar estos valores. */
+@import '@fontsource-variable/bricolage-grotesque';
+@import '@fontsource-variable/instrument-sans';
+
+:root {
+  /* Colores tomados del logo y del packaging, con un verde fresco como acento joven */
+  --ink: #2a1710; /* marrón tinta: texto */
+  --primary: #961f33; /* bordó del logo: botones principales */
+  --on-primary: #ffffff;
+  --leaf: #3e7a2b; /* verde hoja */
+  --leaf-deep: #173516; /* verde profundo: bloques oscuros */
+  --fresh: #c9e35d; /* verde fresco: acento */
+  --gold: #e6ab2c; /* dorado de la franja de los envases */
+  --paper: #f5f8ec; /* fondo del sitio */
+  --card: #ffffff;
+  --line: rgba(42, 23, 16, 0.16);
+
+  /* Colores disponibles para las tarjetas de categoría (se eligen en el panel) */
+  --tone1-bg: var(--fresh);
+  --tone1-ink: var(--ink);
+  --tone2-bg: var(--gold);
+  --tone2-ink: var(--ink);
+  --tone3-bg: var(--primary);
+  --tone3-ink: #ffffff;
+  --tone4-bg: var(--leaf);
+  --tone4-ink: #ffffff;
+
+  --font-display: 'Bricolage Grotesque Variable', 'Trebuchet MS', system-ui, sans-serif;
+  --font-body: 'Instrument Sans Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cómo funciona el sitio de Jerovia y su base de datos</title>
+<style>
+  :root{--ink:#2a1710;--primary:#961f33;--leaf:#3e7a2b;--leaf-deep:#173516;--fresh:#c9e35d;--gold:#e6ab2c;--paper:#f5f8ec;--card:#fff;--line:rgba(42,23,16,.16);}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 'Instrument Sans','Segoe UI',system-ui,sans-serif}
+  header{background:var(--leaf-deep);color:#fff;padding:48px 24px 40px}
+  header div,main{max-width:1040px;margin:0 auto}
+  h1{font:700 clamp(28px,5vw,44px)/1.1 'Bricolage Grotesque','Trebuchet MS',system-ui,sans-serif;margin:0 0 12px}
+  header p{margin:0;max-width:62ch;color:#dfe9cf}
+  main{padding:32px 24px 64px}
+  section{margin:0 0 40px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:28px 24px}
+  h2{font:700 24px/1.2 'Bricolage Grotesque','Trebuchet MS',system-ui,sans-serif;margin:0 0 6px}
+  .lead{margin:0 0 20px;max-width:70ch}
+  svg{display:block;width:100%;height:auto}
+  svg text{font-family:'Instrument Sans','Segoe UI',system-ui,sans-serif;fill:var(--ink)}
+  .t-s{font-size:12px}.t-m{font-size:14px}.t-b{font-weight:700}.t-w{fill:#fff}
+  .note{margin:16px 0 0;font-size:15px}
+  ol.steps{list-style:none;margin:20px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+  ol.steps li{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:14px}
+  ol.steps b{display:block;margin-bottom:2px}
+  code{background:var(--paper);border:1px solid var(--line);border-radius:5px;padding:1px 5px;font-size:.9em}
+  .legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:14px;font-size:13px}
+  .legend span::before{content:"";display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px;background:var(--c)}
+  footer{max-width:1040px;margin:0 auto;padding:0 24px 40px;font-size:13px;color:#6b5a50}
+  @media print{header{padding:24px}section{break-inside:avoid}}
+</style>
+</head>
+<body>
+<header><div>
+  <h1>Cómo funciona el sitio y su base de datos</h1>
+  <p>Una sola aplicación muestra el sitio, sirve el panel de administración y habla con la base. El navegador nunca toca la base directamente.</p>
+</div></header>
+
+<main>
+
+<section aria-labelledby="mapa">
+  <h2 id="mapa">1. El mapa general</h2>
+  <p class="lead">Se define cada dato una vez; de esa definición salen la tabla, el panel de carga y la API. El sitio público solo lee y dibuja.</p>
+  <svg viewBox="0 0 960 470" role="img" aria-label="Mapa: navegador, aplicación Next.js con sitio público, panel y API, capa de lectura, Payload, y base de datos">
+    <defs>
+      <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#2a1710"/></marker>
+    </defs>
+    <!-- navegadores -->
+    <rect x="10" y="60" width="170" height="70" rx="10" fill="#f5f8ec" stroke="#2a1710" stroke-opacity=".3"/>
+    <text x="95" y="90" text-anchor="middle" class="t-m t-b">Visitante</text>
+    <text x="95" y="110" text-anchor="middle" class="t-s">navegador</text>
+    <rect x="10" y="250" width="170" height="70" rx="10" fill="#f5f8ec" stroke="#2a1710" stroke-opacity=".3"/>
+    <text x="95" y="280" text-anchor="middle" class="t-m t-b">Equipo</text>
+    <text x="95" y="300" text-anchor="middle" class="t-s">navegador en /admin</text>
+    <!-- app -->
+    <rect x="230" y="20" width="520" height="430" rx="16" fill="#fff" stroke="#173516" stroke-width="2" stroke-dasharray="6 5"/>
+    <text x="250" y="46" class="t-m t-b">Aplicación única · Next.js 16</text>
+    <rect x="260" y="64" width="150" height="66" rx="10" fill="#c9e35d"/>
+    <text x="335" y="92" text-anchor="middle" class="t-m t-b">Sitio público</text>
+    <text x="335" y="112" text-anchor="middle" class="t-s">páginas y formularios</text>
+    <rect x="260" y="254" width="150" height="66" rx="10" fill="#e6ab2c"/>
+    <text x="335" y="282" text-anchor="middle" class="t-m t-b">Panel /admin</text>
+    <text x="335" y="302" text-anchor="middle" class="t-s">los ABM</text>
+    <rect x="440" y="254" width="150" height="66" rx="10" fill="#e6ab2c"/>
+    <text x="515" y="282" text-anchor="middle" class="t-m t-b">API /api</text>
+    <text x="515" y="302" text-anchor="middle" class="t-s">la usa el panel</text>
+    <rect x="440" y="64" width="150" height="66" rx="10" fill="#fff" stroke="#2a1710" stroke-opacity=".4"/>
+    <text x="515" y="92" text-anchor="middle" class="t-m t-b">Capa de lectura</text>
+    <text x="515" y="112" text-anchor="middle" class="t-s">src/lib/data.ts</text>
+    <rect x="300" y="372" width="410" height="64" rx="10" fill="#961f33"/>
+    <text x="505" y="399" text-anchor="middle" class="t-m t-b t-w">Payload CMS · colecciones y permisos</text>
+    <text x="505" y="419" text-anchor="middle" class="t-s t-w">src/collections · src/access</text>
+    <!-- DB -->
+    <path d="M750 250V350a80 24 0 0 0 160 0V250z" fill="#173516"/>
+    <ellipse cx="830" cy="250" rx="80" ry="24" fill="#3e7a2b"/>
+    <text x="830" y="300" text-anchor="middle" class="t-m t-b t-w">Base de datos</text>
+    <text x="830" y="320" text-anchor="middle" class="t-s t-w">SQLite (dev)</text>
+    <text x="830" y="338" text-anchor="middle" class="t-s t-w">PostgreSQL (prod)</text>
+    <rect x="770" y="64" width="160" height="66" rx="10" fill="#f5f8ec" stroke="#2a1710" stroke-opacity=".3"/>
+    <text x="850" y="92" text-anchor="middle" class="t-m t-b">Archivos</text>
+    <text x="850" y="112" text-anchor="middle" class="t-s">fotos y logos (/media)</text>
+    <!-- flechas -->
+    <path d="M180 95H258" stroke="#2a1710" stroke-width="2" fill="none" marker-end="url(#a)"/>
+    <path d="M180 285H258" stroke="#2a1710" stroke-width="2" fill="none" marker-end="url(#a)"/>
+    <path d="M410 97H438" stroke="#2a1710" stroke-width="2" fill="none" marker-end="url(#a)"/>
+    <path d="M575 130V200H615V370" stroke="#2a1710" stroke-width="2" fill="none" marker-end="url(#a)"/>
+    <path d="M410 287H438" stroke="#2a1710" stroke-width="2" fill="none" marker-end="url(#a)"/>
+    <path d="M560 320V370" stroke="#2a1710" stroke-width="2" fill="none" marker-end="url(#a)"/>
+    <path d="M710 404H800Q830 404 830 376" stroke="#2a1710" stroke-width="2" fill="none" marker-end="url(#a)"/>
+    <path d="M590 97H768" stroke="#2a1710" stroke-opacity=".5" stroke-width="2" stroke-dasharray="5 4" fill="none" marker-end="url(#a)"/>
+    <text x="219" y="85" text-anchor="middle" class="t-s">pide</text>
+    <text x="219" y="275" text-anchor="middle" class="t-s">pide</text>
+  </svg>
+  <div class="legend">
+    <span style="--c:#c9e35d">Lo que ve el público</span>
+    <span style="--c:#e6ab2c">Lo que usa el equipo</span>
+    <span style="--c:#961f33">El núcleo: datos y permisos</span>
+    <span style="--c:#3e7a2b">Donde se guarda todo</span>
+  </div>
+  <p class="note">Los permisos viven en el núcleo, no en la pantalla: aunque alguien viera un botón, el servidor igual decide si puede hacer la acción.</p>
+</section>
+
+<section aria-labelledby="stack">
+  <h2 id="stack">2. La tecnología de base</h2>
+  <p class="lead">Un solo proyecto, un solo lenguaje (TypeScript). Next.js arma el sitio y Payload CMS aporta el panel, la API y los permisos, todo dentro de la misma aplicación.</p>
+  <svg viewBox="0 0 960 400" role="img" aria-label="Capas de tecnología: navegador con React, servidor con Next.js y Payload, servicios de apoyo, y almacenamiento con SQLite o PostgreSQL">
+    <g>
+      <rect x="0" y="0" width="150" height="400" rx="12" fill="#173516"/>
+      <text x="75" y="190" text-anchor="middle" class="t-m t-b t-w">TypeScript</text>
+      <text x="75" y="212" text-anchor="middle" class="t-s t-w">en todas las capas</text>
+    </g>
+    <text x="175" y="20" class="t-s t-b">NAVEGADOR</text>
+    <rect x="170" y="30" width="370" height="64" rx="10" fill="#c9e35d"/>
+    <text x="355" y="58" text-anchor="middle" class="t-m t-b">React 19 · sitio público</text>
+    <text x="355" y="78" text-anchor="middle" class="t-s">páginas, formularios, cuenta del cliente</text>
+    <rect x="560" y="30" width="400" height="64" rx="10" fill="#e6ab2c"/>
+    <text x="760" y="58" text-anchor="middle" class="t-m t-b">React · panel /admin</text>
+    <text x="760" y="78" text-anchor="middle" class="t-s">los ABM del equipo</text>
+    <text x="175" y="124" class="t-s t-b">SERVIDOR · UNA SOLA APLICACIÓN</text>
+    <rect x="170" y="134" width="185" height="78" rx="10" fill="#fff" stroke="#2a1710" stroke-opacity=".4"/>
+    <text x="262" y="162" text-anchor="middle" class="t-m t-b">Next.js 16</text>
+    <text x="262" y="181" text-anchor="middle" class="t-s">rutas y páginas</text>
+    <text x="262" y="198" text-anchor="middle" class="t-s">cabeceras de seguridad</text>
+    <rect x="370" y="134" width="170" height="78" rx="10" fill="#fff" stroke="#2a1710" stroke-opacity=".4"/>
+    <text x="455" y="162" text-anchor="middle" class="t-m t-b">Server Actions</text>
+    <text x="455" y="181" text-anchor="middle" class="t-s">formularios del sitio</text>
+    <text x="455" y="198" text-anchor="middle" class="t-s">validan antes de guardar</text>
+    <rect x="560" y="134" width="400" height="78" rx="10" fill="#961f33"/>
+    <text x="760" y="162" text-anchor="middle" class="t-m t-b t-w">Payload CMS 3</text>
+    <text x="760" y="181" text-anchor="middle" class="t-s t-w">modelos · panel · API REST · permisos · sesiones</text>
+    <text x="760" y="198" text-anchor="middle" class="t-s t-w">GraphQL desactivado</text>
+    <text x="175" y="242" class="t-s t-b">SERVICIOS DE APOYO</text>
+    <rect x="170" y="252" width="240" height="50" rx="10" fill="#f5f8ec" stroke="#2a1710" stroke-opacity=".3"/>
+    <text x="290" y="282" text-anchor="middle" class="t-m">Drizzle ORM (interno)</text>
+    <rect x="430" y="252" width="250" height="50" rx="10" fill="#f5f8ec" stroke="#2a1710" stroke-opacity=".3"/>
+    <text x="555" y="282" text-anchor="middle" class="t-m">Nodemailer · correo SMTP</text>
+    <rect x="700" y="252" width="260" height="50" rx="10" fill="#f5f8ec" stroke="#2a1710" stroke-opacity=".3"/>
+    <text x="830" y="282" text-anchor="middle" class="t-m">sharp · tamaños de imagen</text>
+    <text x="175" y="332" class="t-s t-b">ALMACENAMIENTO</text>
+    <rect x="170" y="342" width="560" height="52" rx="10" fill="#3e7a2b"/>
+    <text x="450" y="373" text-anchor="middle" class="t-m t-b t-w">SQLite en desarrollo · PostgreSQL en producción</text>
+    <rect x="750" y="342" width="210" height="52" rx="10" fill="#3e7a2b"/>
+    <text x="855" y="373" text-anchor="middle" class="t-m t-b t-w">Archivos (media/)</text>
+  </svg>
+  <p class="note">Node.js 20.9 o superior. Se elige la base según <code>DATABASE_URL</code>: el código no cambia.</p>
+</section>
+
+<section aria-labelledby="api">
+  <h2 id="api">3. ¿Qué tipo de API consume el frontend?</h2>
+  <p class="lead">El sitio público <b>no usa una API por HTTP</b>: lee los datos con llamadas a funciones dentro del mismo programa. Solo el panel usa REST.</p>
+  <svg viewBox="0 0 960 400" role="img" aria-label="Cuatro canales hacia Payload: páginas públicas por llamada a función, formularios por Server Actions, panel por API REST, integraciones externas por REST o webhook">
+    <defs><marker id="e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#2a1710"/></marker></defs>
+    <rect x="0" y="10" width="220" height="70" rx="10" fill="#c9e35d"/>
+    <text x="110" y="40" text-anchor="middle" class="t-m t-b">Páginas públicas</text>
+    <text x="110" y="60" text-anchor="middle" class="t-s">productos, blog, puntos de venta</text>
+    <rect x="0" y="110" width="220" height="70" rx="10" fill="#c9e35d"/>
+    <text x="110" y="140" text-anchor="middle" class="t-m t-b">Formularios del sitio</text>
+    <text x="110" y="160" text-anchor="middle" class="t-s">empresas, registro, mis datos</text>
+    <rect x="0" y="210" width="220" height="70" rx="10" fill="#e6ab2c"/>
+    <text x="110" y="240" text-anchor="middle" class="t-m t-b">Panel /admin</text>
+    <text x="110" y="260" text-anchor="middle" class="t-s">equipo de la empresa</text>
+    <rect x="0" y="310" width="220" height="70" rx="10" fill="#fff" stroke="#2a1710" stroke-opacity=".4" stroke-dasharray="5 4"/>
+    <text x="110" y="340" text-anchor="middle" class="t-m t-b">Integraciones externas</text>
+    <text x="110" y="360" text-anchor="middle" class="t-s">pasarela de pago, otros sistemas</text>
+    <rect x="740" y="10" width="220" height="370" rx="14" fill="#961f33"/>
+    <text x="850" y="170" text-anchor="middle" class="t-m t-b t-w">Payload</text>
+    <text x="850" y="192" text-anchor="middle" class="t-s t-w">permisos + validación</text>
+    <text x="850" y="210" text-anchor="middle" class="t-s t-w">+ base de datos</text>
+    <path d="M222 45H738" stroke="#2a1710" stroke-width="2" fill="none" marker-end="url(#e)"/>
+    <path d="M222 145H738" stroke="#2a1710" stroke-width="2" fill="none" marker-end="url(#e)"/>
+    <path d="M222 245H738" stroke="#2a1710" stroke-width="2" fill="none" marker-end="url(#e)"/>
+    <path d="M222 345H738" stroke="#2a1710" stroke-width="2" stroke-dasharray="5 4" fill="none" marker-end="url(#e)"/>
+    <text x="480" y="36" text-anchor="middle" class="t-m t-b">Llamada a función (Local API)</text>
+    <text x="480" y="66" text-anchor="middle" class="t-s">en el mismo proceso · sin red · el servidor arma el HTML</text>
+    <text x="480" y="136" text-anchor="middle" class="t-m t-b">Server Action</text>
+    <text x="480" y="166" text-anchor="middle" class="t-s">POST gestionado por Next.js · valida y limita intentos</text>
+    <text x="480" y="236" text-anchor="middle" class="t-m t-b">API REST · JSON por HTTP</text>
+    <text x="480" y="266" text-anchor="middle" class="t-s">/api/products, /api/customers… con sesión y permisos</text>
+    <text x="480" y="336" text-anchor="middle" class="t-m t-b">API REST o webhook</text>
+    <text x="480" y="366" text-anchor="middle" class="t-s">próxima fase · firma del webhook verificada</text>
+  </svg>
+  <div class="legend">
+    <span style="--c:#c9e35d">Sitio público</span>
+    <span style="--c:#e6ab2c">Panel del equipo</span>
+    <span style="--c:#961f33">Núcleo</span>
+  </div>
+  <p class="note">GraphQL está desactivado: menos superficie de ataque. Si una app móvil o un sistema externo necesita datos, la API REST ya existe y respeta los mismos permisos.</p>
+</section>
+
+<section aria-labelledby="clic">
+  <h2 id="clic">4. Qué pasa cuando alguien hace clic</h2>
+  <p class="lead">Dos recorridos distintos, según el clic ocurra en el sitio público o en el panel.</p>
+  <svg viewBox="0 0 960 360" role="img" aria-label="Dos recorridos: clic en el sitio público con Server Action, y clic de guardar en el panel con la API">
+    <defs><marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#2a1710"/></marker></defs>
+    <text x="0" y="22" class="t-m t-b">A · Sitio público: enviar el formulario «Para empresas»</text>
+    <g>
+      <rect x="0" y="40" width="160" height="78" rx="10" fill="#f5f8ec" stroke="#2a1710" stroke-opacity=".3"/>
+      <text x="80" y="70" text-anchor="middle" class="t-m t-b">Persona</text>
+      <text x="80" y="90" text-anchor="middle" class="t-s">presiona «Enviar»</text>
+      <rect x="200" y="40" width="170" height="78" rx="10" fill="#c9e35d"/>
+      <text x="285" y="70" text-anchor="middle" class="t-m t-b">LeadForm.tsx</text>
+      <text x="285" y="90" text-anchor="middle" class="t-s">corre en el navegador</text>
+      <rect x="410" y="40" width="180" height="78" rx="10" fill="#e6ab2c"/>
+      <text x="500" y="66" text-anchor="middle" class="t-m t-b">submitLead</text>
+      <text x="500" y="84" text-anchor="middle" class="t-s">actions.ts · servidor</text>
+      <text x="500" y="102" text-anchor="middle" class="t-s">valida y limita envíos</text>
+      <rect x="630" y="40" width="150" height="78" rx="10" fill="#961f33"/>
+      <text x="705" y="70" text-anchor="middle" class="t-m t-b t-w">Payload</text>
+      <text x="705" y="90" text-anchor="middle" class="t-s t-w">payload.create</text>
+      <rect x="820" y="40" width="140" height="78" rx="10" fill="#173516"/>
+      <text x="890" y="70" text-anchor="middle" class="t-m t-b t-w">Base</text>
+      <text x="890" y="90" text-anchor="middle" class="t-s t-w">tabla leads</text>
+      <path d="M160 79H198" stroke="#2a1710" stroke-width="2" fill="none" marker-end="url(#b)"/><path d="M370 79H408" stroke="#2a1710" stroke-width="2" fill="none" marker-end="url(#b)"/><path d="M590 79H628" stroke="#2a1710" stroke-width="2" fill="none" marker-end="url(#b)"/><path d="M780 79H818" stroke="#2a1710" stroke-width="2" fill="none" marker-end="url(#b)"/>
+      <path d="M500 118V150H285V120" stroke="#2a1710" stroke-width="2" stroke-dasharray="5 4" fill="none" marker-end="url(#b)"/>
+      <text x="392" y="168" text-anchor="middle" class="t-s">responde «ok» o los errores, y la pantalla se actualiza</text>
+    </g>
+    <text x="0" y="214" class="t-m t-b">B · Panel: guardar un cambio de precio</text>
+    <g>
+      <rect x="0" y="232" width="160" height="78" rx="10" fill="#f5f8ec" stroke="#2a1710" stroke-opacity=".3"/>
+      <text x="80" y="262" text-anchor="middle" class="t-m t-b">Gestor</text>
+      <text x="80" y="282" text-anchor="middle" class="t-s">presiona «Guardar»</text>
+      <rect x="200" y="232" width="170" height="78" rx="10" fill="#e6ab2c"/>
+      <text x="285" y="262" text-anchor="middle" class="t-m t-b">Panel /admin</text>
+      <text x="285" y="282" text-anchor="middle" class="t-s">navegador</text>
+      <rect x="410" y="232" width="180" height="78" rx="10" fill="#fff" stroke="#2a1710" stroke-opacity=".4"/>
+      <text x="500" y="258" text-anchor="middle" class="t-m t-b">API /api/products</text>
+      <text x="500" y="276" text-anchor="middle" class="t-s">revisa sesión y permisos</text>
+      <text x="500" y="294" text-anchor="middle" class="t-s">valida los campos</text>
+      <rect x="630" y="232" width="150" height="78" rx="10" fill="#961f33"/>
+      <text x="705" y="262" text-anchor="middle" class="t-m t-b t-w">Payload</text>
+      <text x="705" y="282" text-anchor="middle" class="t-s t-w">+ hook de auditoría</text>
+      <rect x="820" y="232" width="140" height="78" rx="10" fill="#173516"/>
+      <text x="890" y="262" text-anchor="middle" class="t-m t-b t-w">Base</text>
+      <text x="890" y="282" text-anchor="middle" class="t-s t-w">products + audit-log</text>
+      <path d="M160 271H198" stroke="#2a1710" stroke-width="2" fill="none" marker-end="url(#b)"/><path d="M370 271H408" stroke="#2a1710" stroke-width="2" fill="none" marker-end="url(#b)"/><path d="M590 271H628" stroke="#2a1710" stroke-width="2" fill="none" marker-end="url(#b)"/><path d="M780 271H818" stroke="#2a1710" stroke-width="2" fill="none" marker-end="url(#b)"/>
+    </g>
+  </svg>
+  <p class="note">En el sitio público no hace falta escribir una API: la función <code>submitLead</code> es una <b>Server Action</b> y Next.js crea el canal solo. El servidor vuelve a validar todo, porque lo que llega de afuera no es confiable.</p>
+</section>
+
+<section aria-labelledby="abm">
+  <h2 id="abm">5. Crear un ABM nuevo (ejemplo: Ciudades)</h2>
+  <p class="lead">Un archivo de definición produce cuatro cosas. Después, solo falta leer los datos y dibujarlos.</p>
+  <svg viewBox="0 0 960 300" role="img" aria-label="Un archivo Cities.ts produce la tabla, el ABM en el panel, la API y los tipos">
+    <defs><marker id="c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#2a1710"/></marker></defs>
+    <rect x="0" y="100" width="250" height="100" rx="12" fill="#961f33"/>
+    <text x="125" y="140" text-anchor="middle" class="t-m t-b t-w">Cities.ts</text>
+    <text x="125" y="162" text-anchor="middle" class="t-s t-w">una sola definición:</text>
+    <text x="125" y="180" text-anchor="middle" class="t-s t-w">campos, permisos, etiquetas</text>
+    <g>
+      <rect x="410" y="0" width="260" height="58" rx="10" fill="#173516"/>
+      <text x="540" y="26" text-anchor="middle" class="t-m t-b t-w">Tabla en la base</text>
+      <text x="540" y="45" text-anchor="middle" class="t-s t-w">cities</text>
+      <rect x="410" y="80" width="260" height="58" rx="10" fill="#e6ab2c"/>
+      <text x="540" y="106" text-anchor="middle" class="t-m t-b">Pantalla de ABM</text>
+      <text x="540" y="125" text-anchor="middle" class="t-s">Ciudades en /admin</text>
+      <rect x="410" y="160" width="260" height="58" rx="10" fill="#fff" stroke="#2a1710" stroke-opacity=".4"/>
+      <text x="540" y="186" text-anchor="middle" class="t-m t-b">API</text>
+      <text x="540" y="205" text-anchor="middle" class="t-s">/api/cities</text>
+      <rect x="410" y="240" width="260" height="58" rx="10" fill="#c9e35d"/>
+      <text x="540" y="266" text-anchor="middle" class="t-m t-b">Tipo TypeScript</text>
+      <text x="540" y="285" text-anchor="middle" class="t-s">City, en payload-types.ts</text>
+    </g>
+    <path d="M250 150C320 150 330 29 408 29" stroke="#2a1710" stroke-width="2" fill="none" marker-end="url(#c)"/><path d="M250 150C320 150 330 109 408 109" stroke="#2a1710" stroke-width="2" fill="none" marker-end="url(#c)"/><path d="M250 150C320 150 330 189 408 189" stroke="#2a1710" stroke-width="2" fill="none" marker-end="url(#c)"/><path d="M250 150C320 150 330 269 408 269" stroke="#2a1710" stroke-width="2" fill="none" marker-end="url(#c)"/>
+    <rect x="730" y="100" width="230" height="100" rx="12" fill="#f5f8ec" stroke="#2a1710" stroke-opacity=".3"/>
+    <text x="845" y="136" text-anchor="middle" class="t-m t-b">Después, a mano</text>
+    <text x="845" y="158" text-anchor="middle" class="t-s">getCities() en data.ts</text>
+    <text x="845" y="176" text-anchor="middle" class="t-s">y una página que la muestra</text>
+    <path d="M672 150H728" stroke="#2a1710" stroke-width="2" stroke-dasharray="5 4" fill="none" marker-end="url(#c)"/>
+  </svg>
+  <ol class="steps">
+    <li><b>1. Definir</b>Crear <code>src/collections/Cities.ts</code></li>
+    <li><b>2. Registrar</b>Sumarla en <code>payload.config.ts</code></li>
+    <li><b>3. Generar</b><code>npm run generate:types</code> y reiniciar</li>
+    <li><b>4. Leer</b><code>getCities()</code> en <code>data.ts</code></li>
+    <li><b>5. Mostrar</b>Página o componente que la usa</li>
+  </ol>
+  <p class="note">En producción las tablas no se crean solas: cada cambio de modelo va con una <b>migración</b> versionada y copia de seguridad previa.</p>
+</section>
+
+<section aria-labelledby="cuentas">
+  <h2 id="cuentas">6. Cuentas de clientes y compra sin cuenta</h2>
+  <p class="lead">Las cuentas ya están implementadas (registro, ingreso, datos, direcciones, pedidos). El carrito que las usa llega en la próxima fase: las dos formas de comprar van a existir siempre.</p>
+  <svg viewBox="0 0 960 330" role="img" aria-label="Flujo de compra: carrito, tres opciones (ingresar, crear cuenta, invitado), pago, y oferta de guardar datos">
+    <defs><marker id="d" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#2a1710"/></marker></defs>
+    <rect x="0" y="125" width="130" height="64" rx="10" fill="#f5f8ec" stroke="#2a1710" stroke-opacity=".3"/>
+    <text x="65" y="162" text-anchor="middle" class="t-m t-b">Carrito</text>
+    <rect x="200" y="10" width="200" height="64" rx="10" fill="#c9e35d"/>
+    <text x="300" y="38" text-anchor="middle" class="t-m t-b">Ingresar</text>
+    <text x="300" y="57" text-anchor="middle" class="t-s">datos ya cargados</text>
+    <rect x="200" y="125" width="200" height="64" rx="10" fill="#c9e35d"/>
+    <text x="300" y="153" text-anchor="middle" class="t-m t-b">Crear cuenta</text>
+    <text x="300" y="172" text-anchor="middle" class="t-s">verifica el correo</text>
+    <rect x="200" y="240" width="200" height="64" rx="10" fill="#e6ab2c"/>
+    <text x="300" y="268" text-anchor="middle" class="t-m t-b">Seguir sin cuenta</text>
+    <text x="300" y="287" text-anchor="middle" class="t-s">formulario de invitado</text>
+    <rect x="470" y="125" width="190" height="64" rx="10" fill="#961f33"/>
+    <text x="565" y="153" text-anchor="middle" class="t-m t-b t-w">Entrega y pago</text>
+    <text x="565" y="172" text-anchor="middle" class="t-s t-w">en la página de la pasarela</text>
+    <rect x="730" y="10" width="230" height="64" rx="10" fill="#173516"/>
+    <text x="845" y="38" text-anchor="middle" class="t-m t-b t-w">Mis pedidos</text>
+    <text x="845" y="57" text-anchor="middle" class="t-s t-w">si tenía cuenta</text>
+    <rect x="730" y="240" width="230" height="64" rx="10" fill="#fff" stroke="#2a1710" stroke-opacity=".4"/>
+    <text x="845" y="263" text-anchor="middle" class="t-m t-b">«¿Guardar mis datos?»</text>
+    <text x="845" y="282" text-anchor="middle" class="t-s">solo pide contraseña</text>
+    <path d="M130 150C165 150 165 42 198 42" stroke="#2a1710" stroke-width="2" fill="none" marker-end="url(#d)"/><path d="M130 157H198" stroke="#2a1710" stroke-width="2" fill="none" marker-end="url(#d)"/><path d="M130 164C165 164 165 272 198 272" stroke="#2a1710" stroke-width="2" fill="none" marker-end="url(#d)"/>
+    <path d="M400 42C440 42 440 140 468 148" stroke="#2a1710" stroke-width="2" fill="none" marker-end="url(#d)"/><path d="M400 157H468" stroke="#2a1710" stroke-width="2" fill="none" marker-end="url(#d)"/><path d="M400 272C440 272 440 170 468 166" stroke="#2a1710" stroke-width="2" fill="none" marker-end="url(#d)"/>
+    <path d="M660 150C700 150 700 42 728 42" stroke="#2a1710" stroke-width="2" fill="none" marker-end="url(#d)"/><path d="M660 166C700 166 700 272 728 272" stroke="#2a1710" stroke-width="2" fill="none" marker-end="url(#d)"/>
+  </svg>
+  <p class="note">El pedido siempre guarda una copia de los datos del cliente. Un pedido de invitado se vincula a la cuenta recién cuando el correo está verificado. Los datos de tarjeta nunca pasan por nuestro servidor.</p>
+</section>
+
+</main>
+<footer>Jerovia Orgánico · documentación técnica · detalle en docs/MANUAL-TECNICO.md, docs/GUIA-TECNICA.md y docs/DISENO-CUENTAS-DE-CLIENTE.md</footer>
+</body>
+</html>
