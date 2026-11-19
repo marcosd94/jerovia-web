@@ -9,6 +9,7 @@ import { es } from '@payloadcms/translations/languages/es'
 import { buildConfig } from 'payload'
 import sharp from 'sharp'
 
+import { brandIcons } from './lib/icons'
 import { AuditLog } from './collections/AuditLog'
 import { Brands } from './collections/Brands'
 import { Categories } from './collections/Categories'
@@ -55,7 +56,8 @@ export default buildConfig({
   admin: {
     user: Users.slug,
     avatar: 'default', // no pedir avatares a servicios externos (privacidad)
-    meta: { titleSuffix: ' | Panel de administración' },
+    components: { beforeNavLinks: ['/components/admin/OrdersBadge#OrdersBadge'], views: { dashboard: { Component: '/components/admin/OrdersDashboard#OrdersDashboard' } }, logout: { Button: '/components/admin/AdminLogout#AdminLogout' }, graphics: { Logo: '/components/admin/AdminLogo#AdminLogo', Icon: '/components/admin/AdminIcon#AdminIcon' } },
+    meta: { titleSuffix: ' | Panel de administración', icons: brandIcons() as never },
     importMap: { baseDir: path.resolve(dirname) },
   },
   i18n: { supportedLanguages: { es }, fallbackLanguage: 'es' }, // panel en español

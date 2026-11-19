@@ -6,6 +6,7 @@ import { getPayload } from 'payload'
 import { MIN_PASSWORD } from '@/collections/Customers'
 import { clearCustomerSession, getCustomer, setCustomerSession } from '@/lib/customer'
 import { localePath } from '@/lib/data'
+import type { Locale } from '@brand/types'
 import { isLocale } from '@/lib/locale'
 import type { AccountKey } from '@/lib/messages-account'
 import { allow, clientIp } from '@/lib/ratelimit'
@@ -23,6 +24,8 @@ const loc = (fd: FormData) => {
   const l = clean(fd.get('locale'), 5)
   return isLocale(l) ? l : 'es'
 }
+/** Tras ingresar o crear la cuenta, se vuelve al checkout solo si el formulario lo pidió (valor fijo, no una dirección libre) */
+const afterAuth = (fd: FormData, locale: Locale) => localePath(locale, clean(fd.get('next'), 20) === 'checkout' ? '/checkout' : '/cuenta')
 const getP = async () => getPayload({ config })
 const errName = (e: unknown) => (e as { name?: string })?.name ?? ''
 
@@ -77,7 +80,7 @@ export async function registerAccount(_p: AcctState, fd: FormData): Promise<Acct
   } catch {
     return { status: 'ok', message: 'verifyNeeded' }
   }
-  redirect(localePath(locale, '/cuenta'))
+  redirect(afterAuth(fd, locale))
 }
 
 // ---------- Ingreso / salida ----------
@@ -97,7 +100,7 @@ export async function loginAccount(_p: AcctState, fd: FormData): Promise<AcctSta
     const message: AccountKey = name === 'LockedAuth' ? 'errLocked' : name === 'UnverifiedEmail' ? 'errUnverified' : 'errLogin'
     return { status: 'error', message, values: { email } }
   }
-  redirect(localePath(locale, '/cuenta'))
+  redirect(afterAuth(fd, locale))
 }
 
 export async function logoutAccount(fd: FormData) {

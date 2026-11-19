@@ -1,7 +1,9 @@
 import type { Metadata } from 'next'
+import { brandIcons } from '@/lib/icons'
 import { notFound } from 'next/navigation'
 import { brand } from '@brand'
 import { Analytics } from '@/components/Analytics'
+import { CartProvider } from '@/components/cart/CartProvider'
 import { Footer } from '@/components/Footer'
 import { Header } from '@/components/Header'
 import { getCertifications, getSettings } from '@/lib/data'
@@ -20,6 +22,7 @@ export async function generateMetadata({ params }: Pick<Props, 'params'>): Promi
     metadataBase: new URL(process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'),
     title: { default: brand.name, template: brand.seo.titleTemplate },
     description: pick(brand.seo.description, l),
+    icons: brandIcons(),
   }
 }
 
@@ -27,14 +30,18 @@ export default async function LocaleLayout({ children, params }: Props) {
   const { locale } = await params
   if (!isLocale(locale) || !brand.enabledLocales.includes(locale)) notFound()
   const [settings, certifications] = await Promise.all([getSettings(locale), getCertifications(locale, { footer: true })])
+  const shop = Boolean(settings.shopEnabled) && brand.features.shop
+  const page = (
+    <>
+      <Header locale={locale} announcement={settings.announcement} showAccount={Boolean(settings.shopEnabled) && brand.features.accounts} showCart={shop} />
+      <main id="contenido">{children}</main>
+      <Footer locale={locale} settings={settings} certifications={certifications} />
+      <Analytics locale={locale} />
+    </>
+  )
   return (
     <html lang={locale}>
-      <body>
-        <Header locale={locale} announcement={settings.announcement} showAccount={Boolean(settings.shopEnabled) && brand.features.accounts} />
-        <main id="contenido">{children}</main>
-        <Footer locale={locale} settings={settings} certifications={certifications} />
-        <Analytics locale={locale} />
-      </body>
+      <body>{shop ? <CartProvider>{page}</CartProvider> : page}</body>
     </html>
   )
 }

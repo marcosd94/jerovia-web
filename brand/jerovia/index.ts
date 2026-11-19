@@ -11,7 +11,7 @@ const brandEs: BrandConfig = {
   enabledLocales: ['es', 'en', 'pt'],
   currency: 'PYG',
   headerCta: '/puntos-de-venta',
-  features: { shop: false, blog: true, b2b: true, storeLocator: true, certifications: true, whatsapp: true, links: true, accounts: true },
+  features: { shop: true, blog: true, b2b: true, storeLocator: true, certifications: true, whatsapp: true, links: true, accounts: true },
   logo: { file: 'logo-jerovia-organico.png', alt: 'Jerovia Orgánico' },
   heroCertificationSlug: 'paraguayo-como-vos',
   nav: [
@@ -22,6 +22,7 @@ const brandEs: BrandConfig = {
     { href: '/blog', label: { es: 'Aprendé', en: 'Learn', pt: 'Aprenda' } },
     { href: '/para-empresas', label: { es: 'Para empresas', en: 'For business', pt: 'Para empresas' } },
   ],
+  icons: { svg: 'favicon.svg', png: 'favicon-32.png', apple: 'apple-touch-icon.png' },
   seo: {
     titleTemplate: '%s | Jerovia Orgánico',
     description: {

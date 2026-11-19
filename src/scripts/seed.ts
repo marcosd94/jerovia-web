@@ -7,6 +7,7 @@ import { brandDir, seed } from '../../brand/active'
 import type { L10n } from '../../brand/types'
 import config from '../payload.config'
 import { toLexical } from '../lib/lexical'
+import { slugify } from '../lib/slug'
 
 type Slugged = 'categories' | 'brands' | 'certifications' | 'products' | 'posts' | 'pages'
 
@@ -97,9 +98,52 @@ async function main() {
     certIds.set(c.slug, doc.id)
   }
 
-  // ---------- Productos ----------
-  for (const p of seed.products) {
-    if (await findBySlug('products', p.slug)) continue
+  // ---------- Productos (un producto = una presentación = un precio) ----------
+  // Cada presentación del seed es un producto propio. La primera conserva la dirección web original;
+  // las demás llevan la presentación en la dirección (yerba-mate-organica-250-g).
+  const LEGACY_SIZES: Record<'es' | 'en' | 'pt', string>[] = [
+    { es: 'Disponible en paquetes de 500 g y 250 g, y en 25 saquitos', en: 'Available in 500 g and 250 g packs, and in 25 tea bags', pt: 'Disponível em pacotes de 500 g e 250 g, e em 25 saquinhos' },
+    { es: 'Disponible en 500 g, 250 g y 25 saquitos', en: 'Available in 500 g, 250 g and 25 tea bags', pt: 'Disponível em 500 g, 250 g e 25 saquinhos' },
+    { es: 'Disponible en paquetes de 500 g y 250 g.', en: 'Available in 500 g and 250 g packs.', pt: 'Disponível em pacotes de 500 g e 250 g.' },
+  ]
+  const flat = seed.products.flatMap((p) =>
+    p.variants.map((v, i) => ({
+      p,
+      v,
+      i,
+      slug: i === 0 ? p.slug : `${p.slug}-${slugify(v.label.es)}`,
+      order: i === 0 ? p.order : p.order + i / 10,
+    })),
+  )
+  for (const { p, v, i, slug, order } of flat) {
+    const existing = await findBySlug('products', slug)
+    if (existing) {
+      // Base ya cargada (incluye las que tenían varias presentaciones): completa solo lo que esté vacío
+      const doc = (await payload.findByID({ collection: 'products', id: existing.id, locale: 'es', depth: 0, overrideAccess: true })) as unknown as { presentation?: string | null; sku?: string | null; price?: number | null; family?: string | null; variants?: { label?: string; sku?: string | null; price?: number | null }[] }
+      const data: Record<string, unknown> = {}
+      const legacy = i === 0 ? doc.variants?.[0] : undefined // la presentación que tenía el producto antes de separarlas
+      if (!doc.presentation) data.presentation = legacy?.label || v.label.es
+      if (!doc.sku && (legacy?.sku || v.sku)) data.sku = legacy?.sku || v.sku
+      if (doc.price == null && (legacy?.price ?? v.price) != null) data.price = legacy?.price ?? v.price
+      // Precio de prueba anterior que nadie tocó: se actualiza al valor de referencia nuevo (si se editó en el panel, no se pisa)
+      else if (v.prevPrice != null && v.price != null && doc.price === v.prevPrice) data.price = v.price
+      if (!doc.family) data.family = p.slug
+      // Las descripciones de antes listaban todas las presentaciones ("Disponible en 500 g, 250 g..."): ahora cada producto es una sola.
+      // Solo se reescriben si todavía tienen esa frase exacta de la carga inicial (no se pisa lo editado en el panel).
+      for (const loc of ['es', 'en', 'pt'] as const) {
+        const cur = (await payload.findByID({ collection: 'products', id: existing.id, locale: loc, fallbackLocale: false, depth: 0, overrideAccess: true })) as unknown as { description?: unknown }
+        const text = JSON.stringify(cur.description ?? '')
+        if (LEGACY_SIZES.some((x) => text.includes(x[loc]))) {
+          await payload.update({ collection: 'products', id: existing.id, locale: loc, draft: false, data: { description: toLexical(p.paragraphs.map((x) => x[loc] ?? x.es)) as never }, overrideAccess: true } as Parameters<Payload['update']>[0])
+          log(`Descripción sin lista de presentaciones (${loc}): ${slug}`)
+        }
+      }
+      if (Object.keys(data).length) {
+        await payload.update({ collection: 'products', id: existing.id, locale: 'es', draft: false, data, overrideAccess: true } as Parameters<Payload['update']>[0])
+        log(`Producto actualizado (una presentación por producto): ${slug}`)
+      }
+      continue
+    }
     const doc = await payload.create({
       collection: 'products',
       locale: 'es',
@@ -107,20 +151,24 @@ async function main() {
       data: {
         _status: 'published',
         name: p.name.es,
-        slug: p.slug,
+        slug,
+        presentation: v.label.es,
+        sku: v.sku,
+        price: v.price,
+        available: true,
+        family: p.slug,
         category: categoryIds.get(p.category) as number,
         brand: brandIds.get(p.brand) as number,
         summary: p.summary.es,
         description: toLexical(p.paragraphs.map((x) => x.es)) as never,
         image: p.image ? (mediaIds.get(p.image) as number) : undefined,
-        featured: Boolean(p.featured),
-        order: p.order,
-        variants: p.variants.map((v) => ({ label: v.label.es, sku: v.sku, price: v.price, available: true })),
+        featured: i === 0 && Boolean(p.featured),
+        order,
         certifications: (p.certifications ?? []).map((c) => certIds.get(c) as number),
       },
     })
-    await translate('products', doc.id, { name: p.name, summary: p.summary })
-    log(`Producto cargado: ${p.name.es}`)
+    await translate('products', doc.id, { name: p.name, summary: p.summary, presentation: v.label })
+    log(`Producto cargado: ${p.name.es} ${v.label.es}`)
   }
 
   // ---------- Notas ----------
@@ -182,7 +230,13 @@ async function main() {
   // ---------- Zonas de entrega ----------
   const zoneCount = await payload.count({ collection: 'delivery-zones' })
   if (!zoneCount.totalDocs) {
-    for (const z of seed.deliveryZones) await payload.create({ collection: 'delivery-zones', locale: 'es', data: { name: z.name.es, price: z.price, eta: z.eta?.es, active: true } })
+    for (const z of seed.deliveryZones) {
+      const zone = await payload.create({ collection: 'delivery-zones', locale: 'es', data: { name: z.name.es, price: z.price, eta: z.eta?.es, active: true }, overrideAccess: true })
+      for (const l of ['en', 'pt'] as const) {
+        if (z.name[l] || z.eta?.[l]) await payload.update({ collection: 'delivery-zones', id: zone.id, locale: l, data: { name: z.name[l] ?? z.name.es, eta: z.eta?.[l] }, overrideAccess: true })
+      }
+    }
+    if (seed.deliveryZones.length) log(`Zonas de entrega de prueba cargadas: ${seed.deliveryZones.length}`)
   }
 
   // ---------- Configuración del sitio ----------
@@ -191,7 +245,6 @@ async function main() {
     slug: 'site-settings',
     locale: 'es',
     data: {
-      shopEnabled: false,
       whatsapp: s.whatsapp,
       phone: s.phone,
       email: s.email,
@@ -201,6 +254,8 @@ async function main() {
       footerNote: s.footerNote.es,
     },
   })
+  // La tienda se activa a propósito: SEED_SHOP_ENABLED=1 al correr el seed (o el Administrador, desde el panel). El seed nunca la apaga.
+  if (process.env.SEED_SHOP_ENABLED === '1') await payload.updateGlobal({ slug: 'site-settings', data: { shopEnabled: true }, overrideAccess: true })
 
   // ---------- Carrusel de la portada (no pisa lo que ya se haya cargado desde el panel) ----------
   if (seed.homeCarousel) {
@@ -292,18 +347,15 @@ async function main() {
       if (empty(doc.description) && c.description[locale]) data.description = c.description[locale] as string
       if (Object.keys(data).length) { await upd({ collection: 'certifications', id, locale, data }); filled++ }
     }
-    for (const p of seed.products) {
-      const found = await findBySlug('products', p.slug)
+    for (const { p, v, slug } of flat) {
+      const found = await findBySlug('products', slug)
       if (!found) continue
       const doc = (await payload.findByID({ collection: 'products', id: found.id, locale, ...opts })) as unknown as Record<string, unknown>
       const data: Record<string, unknown> = {}
       if (empty(doc.name) && p.name[locale]) data.name = p.name[locale]
       if (empty(doc.summary) && p.summary[locale]) data.summary = p.summary[locale]
+      if (empty(doc.presentation) && (v.label[locale] ?? v.label.es)) data.presentation = v.label[locale] ?? v.label.es
       if (empty(doc.description) && p.paragraphs.some((x) => x[locale])) data.description = toLexical(p.paragraphs.map((x) => x[locale] ?? x.es))
-      const rows = (doc.variants ?? []) as { id?: string; label?: string }[]
-      if (rows.length === p.variants.length && rows.some((r, i) => empty(r.label) && p.variants[i].label[locale])) {
-        data.variants = rows.map((r, i) => ({ ...r, label: empty(r.label) ? (p.variants[i].label[locale] ?? p.variants[i].label.es) : r.label }))
-      }
       if (Object.keys(data).length) { await upd({ collection: 'products', id: found.id, locale, draft: false, data }); filled++ }
     }
     for (const pg of seed.pages) {

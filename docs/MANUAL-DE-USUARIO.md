@@ -63,7 +63,7 @@ La pantalla de ingreso pide dos datos: **Correo** y **Contraseña**. Después de
 
 1. Entrá a Productos y presioná *Crear nuevo*.
 2. Completá los datos principales (tabla de abajo).
-3. En *Presentaciones* agregá cada tamaño o formato con su precio.
+3. Completá la *Presentación* (ej: 500 g), el precio y el código. **Un producto es una sola presentación**: si la yerba viene en 250 g y 500 g, son dos productos.
 4. Subí la foto principal y, si querés, más fotos.
 5. Elegí las certificaciones que correspondan.
 6. Guardá como borrador para revisar o publicá para que se vea en el sitio.
@@ -79,14 +79,15 @@ La pantalla de ingreso pide dos datos: **Correo** y **Contraseña**. Después de
 | Resumen | Una o dos líneas (máximo 220 caracteres). |
 | Descripción completa | Texto largo con formato. |
 | Foto principal y Más fotos | Imágenes de la biblioteca de Medios. |
-| Presentaciones | Cada una con nombre (ej: 500 g), código interno opcional, precio en guaraníes y casilla *Disponible*. |
+| Presentación, código (SKU), precio y *Disponible* | Una sola presentación por producto, con su precio en guaraníes. |
+| Grupo de presentaciones | Mismo texto en los productos que son la misma cosa en distinto tamaño (ej: `yerba-mate-organica`). Solo sirve para organizarte. |
 | Certificaciones del producto | Una o varias, elegidas de la lista. |
 
 **Precios:** si dejás el precio vacío, el sitio muestra "Consultar precio". Se escribe solo el número, sin puntos ni Gs.
 
-**Cambiar un precio:** abrí el producto, modificá el precio de la presentación y guardá.
+**Cambiar un precio:** abrí el producto, modificá el precio y guardá.
 
-**Agotado:** desmarcá *Disponible* en esa presentación.
+**Agotado:** desmarcá *Disponible* en ese producto.
 
 **Despublicar:** pasá el producto a borrador. No se pierde nada y podés volver a publicarlo.
 
@@ -291,6 +292,28 @@ Esta página está pensada para enlaces importantes: redes sociales, WhatsApp, u
 | Texto del pie de página | Frase final de todas las páginas. |
 
 Los cambios se ven en el sitio apenas se guarda.
+
+## Tienda: cómo se compra y cómo se cobra
+
+- La tienda se enciende en *Configuración del sitio* → "Activar tienda" (solo el Administrador). Apagada, el sitio es solo catálogo.
+- Un producto se puede comprar si tiene **precio** y no está marcada como agotada. Sin precio se muestra "Consultar precio".
+- En *Configuración del sitio* → "Formas de pago de la tienda" cargá los datos para transferir (banco, cuenta, titular, alias/QR). El cliente los ve al confirmar el pedido. Si queda vacío, se le avisa que lo vas a contactar.
+- Cada pedido entra en *Pedidos* como "Pendiente de pago". Cuando llega el comprobante, cambiá el estado a "Pagado" y completá la conciliación.
+- Los **precios y zonas de envío cargados hoy son de prueba**: reemplazalos desde *Productos* y *Zonas de entrega*.
+
+## Panel de pedidos (pantalla de inicio)
+
+Al entrar al panel de administración lo primero que se ve es el **Panel de pedidos**.
+
+- **Globo rojo en el menú:** junto a "Pedidos" aparece un número con los pedidos que esperan acción antes de poder enviarse (nuevos pendientes de pago + pagados por aprobar). Para el rol Logística cuenta los pedidos aprobados, listos para enviar. Se actualiza solo cada minuto y al volver a la pestaña.
+- **Aviso rojo** arriba: lleva directo a la lista de pedidos que esperan acción.
+- **Filtros:** atajos de fechas (Hoy, Últimos 7 días, Últimos 30 días, Este mes, Todo), rango Desde/Hasta, estado, entrega (domicilio o retiro), forma de pago, cliente (con cuenta o invitado) y zona de envío. Se aplican con el botón **Aplicar**; **Limpiar** vuelve a los últimos 30 días.
+- **Cifras:** cantidad de pedidos, ventas (sin cancelados), ticket promedio y pedidos que esperan acción.
+- **Pedidos por estado:** una tarjeta por estado (nuevos, por aprobar, listos para enviar, listos para retirar, en camino, entregados, cancelados). Al hacer clic se abre la lista de pedidos de ese estado.
+- **Pedidos por día**, desglose por entrega, forma de pago, cliente y zona, y los productos más pedidos.
+- Cada rol ve solo lo que le corresponde: Logística no ve montos ni formas de pago, y solo pedidos aprobados en adelante.
+
+Las fechas se toman en hora de Paraguay.
 
 ## Pedidos y zonas de entrega
 

@@ -323,15 +323,23 @@ export interface Product {
       }[]
     | null;
   /**
-   * Cada tamaño o formato del producto, con su precio.
+   * Cada producto es UNA presentación con UN precio. Si hay otro tamaño, creá otro producto.
    */
+  presentation?: string | null;
+  sku?: string | null;
+  /**
+   * Vacío = se muestra "Consultar precio" y no se puede comprar.
+   */
+  price?: number | null;
+  available?: boolean | null;
+  /**
+   * Solo para organizarte: mismo texto en los productos que son lo mismo en distinto tamaño. Ej: yerba-mate-organica.
+   */
+  family?: string | null;
   variants?:
     | {
         label?: string | null;
         sku?: string | null;
-        /**
-         * Dejalo vacío para mostrar "Consultar precio".
-         */
         price?: number | null;
         available?: boolean | null;
         id?: string | null;
@@ -871,6 +879,11 @@ export interface ProductsSelect<T extends boolean = true> {
         image?: T;
         id?: T;
       };
+  presentation?: T;
+  sku?: T;
+  price?: T;
+  available?: T;
+  family?: T;
   variants?:
     | T
     | {
@@ -1161,6 +1174,17 @@ export interface SiteSetting {
     enabled?: boolean | null;
     address?: string | null;
   };
+  /**
+   * Cobro manual mientras no haya pasarela de pagos. Estos datos se muestran al cliente al confirmar el pedido.
+   */
+  payments?: {
+    transferEnabled?: boolean | null;
+    /**
+     * El cliente los ve al confirmar el pedido. Pedile que envíe el comprobante por WhatsApp.
+     */
+    transferInstructions?: string | null;
+    cashEnabled?: boolean | null;
+  };
   social?:
     | {
         label: string;
@@ -1280,6 +1304,13 @@ export interface SiteSettingsSelect<T extends boolean = true> {
     | {
         enabled?: T;
         address?: T;
+      };
+  payments?:
+    | T
+    | {
+        transferEnabled?: T;
+        transferInstructions?: T;
+        cashEnabled?: T;
       };
   social?:
     | T

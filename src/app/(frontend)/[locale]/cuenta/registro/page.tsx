@@ -9,10 +9,11 @@ import { RegisterForm } from '../AccountForms'
 
 export const metadata: Metadata = { title: 'Crear cuenta', robots: { index: false, follow: false } }
 
-export default async function Register({ params }: { params: Promise<{ locale: string }> }) {
+export default async function Register({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<{ next?: string }> }) {
   const { locale } = await params
+  const { next } = await searchParams
   if (!isLocale(locale) || !brand.features.accounts) notFound()
-  if (await getCustomer()) redirect(localePath(locale, '/cuenta'))
+  if (await getCustomer()) redirect(localePath(locale, next === 'checkout' ? '/checkout' : '/cuenta'))
   return (
     <div className="wrap">
       <div className="page-head">
@@ -20,7 +21,7 @@ export default async function Register({ params }: { params: Promise<{ locale: s
         <p>{ta(locale, 'registerIntro')}</p>
       </div>
       <div style={{ maxWidth: '34rem', paddingBottom: '4rem' }}>
-        <RegisterForm locale={locale} />
+        <RegisterForm locale={locale} next={next === 'checkout' ? 'checkout' : undefined} />
       </div>
     </div>
   )

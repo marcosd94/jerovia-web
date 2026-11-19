@@ -86,11 +86,12 @@ function Submit({ pending, locale, label }: { pending: boolean; locale: Locale; 
   )
 }
 
-export function LoginForm({ locale }: { locale: Locale }) {
+export function LoginForm({ locale, next }: { locale: Locale; next?: 'checkout' }) {
   const [state, action, pending] = useActionState(loginAccount, initial)
   return (
     <form className="form" action={action} noValidate>
       <input type="hidden" name="locale" value={locale} />
+      {next ? <input type="hidden" name="next" value={next} /> : null}
       <Notice state={state} locale={locale} />
       <Field id="email" label={ta(locale, 'email')} type="email" autoComplete="email" required state={state} locale={locale} />
       <Field id="password" label={ta(locale, 'password')} type="password" autoComplete="current-password" required state={state} locale={locale} />
@@ -99,13 +100,13 @@ export function LoginForm({ locale }: { locale: Locale }) {
         <Link href={base(locale, '/olvide')}>{ta(locale, 'forgot')}</Link>
       </p>
       <p className="small">
-        {ta(locale, 'noAccount')} <Link href={base(locale, '/registro')}>{ta(locale, 'register')}</Link>
+        {ta(locale, 'noAccount')} <Link href={base(locale, next ? '/registro?next=checkout' : '/registro')}>{ta(locale, 'register')}</Link>
       </p>
     </form>
   )
 }
 
-export function RegisterForm({ locale }: { locale: Locale }) {
+export function RegisterForm({ locale, next }: { locale: Locale; next?: 'checkout' }) {
   const [state, action, pending] = useActionState(registerAccount, initial)
   if (state.status === 'ok') {
     return (
@@ -117,6 +118,7 @@ export function RegisterForm({ locale }: { locale: Locale }) {
   return (
     <form className="form" action={action} noValidate>
       <input type="hidden" name="locale" value={locale} />
+      {next ? <input type="hidden" name="next" value={next} /> : null}
       <Trap />
       <Notice state={state} locale={locale} />
       <Field id="name" label={ta(locale, 'name')} autoComplete="name" required state={state} locale={locale} />
@@ -136,7 +138,7 @@ export function RegisterForm({ locale }: { locale: Locale }) {
       </div>
       <Submit pending={pending} locale={locale} label="register" />
       <p className="small">
-        {ta(locale, 'hasAccount')} <Link href={base(locale, '/ingresar')}>{ta(locale, 'login')}</Link>
+        {ta(locale, 'hasAccount')} <Link href={base(locale, next ? '/ingresar?next=checkout' : '/ingresar')}>{ta(locale, 'login')}</Link>
       </p>
     </form>
   )

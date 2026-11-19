@@ -22,6 +22,12 @@ un interruptor en el panel (Configuración del sitio), que solo puede cambiar el
 ## Carrusel de la portada
 Las diapositivas de la portada se administran desde el panel (global `home-carousel`). En `seed.ts` de la marca, `homeCarousel` define las diapositivas iniciales; solo se cargan si el panel todavía no tiene ninguna.
 
+## Favicon
+Colocar en `brand/<marca>/assets` el favicon (`favicon.svg`, `favicon-32.png`) y el ícono para iPhone (`apple-touch-icon.png`, 180×180) y declararlos en `icons` dentro de `brand/<marca>/index.ts`. Si la marca no define `icons`, el sitio no muestra ícono propio.
+
+## Panel de administración
+El logo de la pantalla de ingreso y el ícono de la barra superior salen de la marca activa (`logo` e `icons` en `brand/<marca>/index.ts`). El menú lateral usa colores neutros (fondo claro y grupos en azul pizarra), iguales para cualquier empresa; solo toma la fuente de la marca. Los estilos propios están en `src/app/(payload)/custom.css`; los componentes, en `src/components/admin/`. Si se agrega un componente nuevo al panel, ejecutar `npx payload generate:importmap`.
+
 ## Idiomas
 Poner `enabledLocales: ['es', 'en', 'pt']`. El selector de idioma aparece solo en el encabezado cuando hay dos o más idiomas.
 

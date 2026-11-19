@@ -31,6 +31,8 @@ export type BrandConfig = {
   /** Enlace del menú que se muestra como botón destacado (ej: "/puntos-de-venta"). Opcional */
   headerCta?: string
   seo: { titleTemplate: string; description: L10n }
+  /** Íconos de la pestaña del navegador: nombres de archivo dentro de brand/<marca>/assets (opcional) */
+  icons?: { svg?: string; png?: string; apple?: string }
 }
 
 /** Textos de la portada y de secciones propias de la marca */
@@ -83,7 +85,7 @@ export type SeedData = {
     image?: string
     featured?: boolean
     order: number
-    variants: { label: L10n; sku?: string; price?: number }[]
+    variants: { label: L10n; sku?: string; price?: number; prevPrice?: number }[]
     certifications?: string[]
   }[]
   posts: {

@@ -58,7 +58,21 @@ export default async function Stores({ params }: { params: Promise<{ locale: str
                             {s.name}
                             {s.city || s.address ? <small>{[s.city, s.address].filter(Boolean).join(', ')}</small> : null}
                           </span>
-                          {s.phone ? <a href={`tel:${s.phone.replace(/[^\d+]/g, '')}`}>{s.phone}</a> : null}
+                          <span className="store-actions">
+                            {s.phone ? <a href={`tel:${s.phone.replace(/[^\d+]/g, '')}`}>{s.phone}</a> : null}
+                            {typeof s.lat === 'number' && typeof s.lng === 'number' ? (
+                              <a
+                                className="store-go"
+                                href={`https://www.google.com/maps/search/?api=1&query=${s.lat},${s.lng}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label={`${t(locale, 'mapDirections')}: ${s.name}`}
+                              >
+                                <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 11 21 3l-8 18-2-8-8-2Z" /></svg>
+                                {t(locale, 'goTo')}
+                              </a>
+                            ) : null}
+                          </span>
                         </li>
                       ))}
                     </ul>

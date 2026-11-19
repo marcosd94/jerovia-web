@@ -6,7 +6,7 @@ import { slugFrom } from '../lib/slug'
 export const Products: CollectionConfig = {
   slug: 'products',
   labels: { singular: 'Producto', plural: 'Productos' },
-  admin: { useAsTitle: 'name', group: 'Catálogo', defaultColumns: ['name', 'category', 'featured', '_status'], hidden: visibleTo('admin', 'gestor', 'visor') },
+  admin: { useAsTitle: 'name', group: 'Catálogo', defaultColumns: ['name', 'presentation', 'price', 'category', '_status'], hidden: visibleTo('admin', 'gestor', 'visor') },
   defaultSort: 'order',
   versions: { drafts: true, maxPerDoc: 20 },
   access: { read: publishedOrStaff, create: isAdminOrGestor, update: isAdminOrGestor, delete: isAdmin },
@@ -23,25 +23,43 @@ export const Products: CollectionConfig = {
     { name: 'image', type: 'upload', relationTo: 'media', label: 'Foto principal' },
     { name: 'gallery', type: 'array', label: 'Más fotos', labels: { singular: 'Foto', plural: 'Fotos' }, fields: [{ name: 'image', type: 'upload', relationTo: 'media', required: true, label: 'Foto' }] },
     {
-      name: 'variants',
-      type: 'array',
-      label: 'Presentaciones',
-      labels: { singular: 'Presentación', plural: 'Presentaciones' },
-      minRows: 1,
-      admin: { description: 'Cada tamaño o formato del producto, con su precio.' },
+      type: 'row',
       fields: [
         {
-          name: 'label',
+          name: 'presentation',
           type: 'text',
-          label: 'Presentación (ej: 500 g)',
+          label: 'Presentación (ej: 500 g, 25 saquitos)',
           localized: true,
-          // Obligatoria en español; en otros idiomas, si falta, se usa la de español
-          validate: (value: string | null | undefined, { req }: { req: { locale?: string | null } }) =>
-            req.locale && req.locale !== 'es' ? true : value ? true : 'Completá la presentación (ej: 500 g).',
+          admin: { description: 'Cada producto es UNA presentación con UN precio. Si hay otro tamaño, creá otro producto.' },
         },
-        { name: 'sku', type: 'text', label: 'Código interno (opcional)' },
-        { name: 'price', type: 'number', label: 'Precio en guaraníes (consumidor final)', min: 0, admin: { description: 'Dejalo vacío para mostrar "Consultar precio".' } },
+        { name: 'sku', type: 'text', label: 'Código interno (SKU)', index: true },
+      ],
+    },
+    {
+      type: 'row',
+      fields: [
+        { name: 'price', type: 'number', label: 'Precio en guaraníes (consumidor final)', min: 0, admin: { description: 'Vacío = se muestra "Consultar precio" y no se puede comprar.' } },
         { name: 'available', type: 'checkbox', label: 'Disponible', defaultValue: true },
+      ],
+    },
+    {
+      name: 'family',
+      type: 'text',
+      label: 'Grupo de presentaciones (opcional)',
+      index: true,
+      admin: { position: 'sidebar', description: 'Solo para organizarte: mismo texto en los productos que son lo mismo en distinto tamaño. Ej: yerba-mate-organica.' },
+    },
+    // Campo anterior (varias presentaciones dentro de un producto). Se conserva oculto solo como respaldo de la migración.
+    {
+      name: 'variants',
+      type: 'array',
+      label: 'Presentaciones (anterior)',
+      admin: { hidden: true, readOnly: true },
+      fields: [
+        { name: 'label', type: 'text', localized: true },
+        { name: 'sku', type: 'text' },
+        { name: 'price', type: 'number', min: 0 },
+        { name: 'available', type: 'checkbox', defaultValue: true },
       ],
     },
     { name: 'certifications', type: 'relationship', relationTo: 'certifications', hasMany: true, label: 'Certificaciones del producto' },

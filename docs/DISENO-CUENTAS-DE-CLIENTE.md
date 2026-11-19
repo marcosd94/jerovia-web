@@ -91,7 +91,7 @@ flowchart TD
 
 1. ✅ Colección `customers` + verificación de correo + recuperación de contraseña (el correo funciona con cualquier SMTP: variables `SMTP_*`).
 2. ✅ Páginas de Ingresar, Crear cuenta, Mi cuenta, Mis pedidos.
-3. Carrito y checkout con las tres opciones (ingresar, registrarse, invitado).
+3. ✅ Carrito y checkout con las tres opciones (ingresar, registrarse, invitado). Ingresar y registrarse llevan `?next=checkout` y vuelven al checkout.
 4. Integración con Pagopar (confirmación por webhook firmado).
 5. Oferta de crear cuenta tras la compra y vinculación de pedidos por correo verificado.
 6. Eliminación de cuenta y exportación de datos.

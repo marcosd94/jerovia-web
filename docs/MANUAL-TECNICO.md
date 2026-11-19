@@ -97,7 +97,7 @@ jerovia-web/
 | --- | --- | --- | --- |
 | `users` | Sistema → Usuarios | Personal con rol (admin, gestor, visor, logística) | No |
 | `customers` | Ventas → Clientes | Cuentas de clientes de la tienda | Solo la propia |
-| `products` | Catálogo → Productos | Productos con presentaciones, fotos, certificaciones | Publicados |
+| `products` | Catálogo → Productos | Un producto = una presentación (presentación, SKU, precio, grupo), fotos, certificaciones | Publicados |
 | `categories` | Catálogo → Categorías | Agrupan productos | Visibles |
 | `brands` | Catálogo → Marcas | Marcas de productos | Sí |
 | `certifications` | Catálogo → Certificaciones | Sellos y certificaciones | Sí |
@@ -126,6 +126,13 @@ erDiagram
 ```
 
 Un pedido sin `account` es una compra de invitado: guarda igual una copia de los datos del comprador.
+
+### Panel de pedidos del administrador
+
+- `src/components/admin/OrdersDashboard.tsx`: componente de servidor registrado en `admin.components.views.dashboard.Component`. Lee los filtros de la URL (`desde`, `hasta`, `rango`, `estado`, `entrega`, `pago`, `cliente`, `zona`), consulta con la API local usando el usuario (`overrideAccess: false`, así respeta los permisos de cada rol) y calcula con `src/lib/order-stats.ts` (funciones puras, fechas en UTC-3).
+- `src/components/admin/OrdersBadge.tsx`: componente de cliente en `admin.components.beforeNavLinks`. Consulta `/api/orders/count` cada 60 s y al enfocar la pestaña, y dibuja el globo con CSS sobre el enlace `a[href$="/collections/orders"]`.
+- Estilos `.ord-*` en `src/app/(payload)/custom.css`. Tras tocar `admin.components` ejecutar `npx payload generate:importmap`.
+- Límite: la consulta trae hasta 5000 pedidos por vista; si el volumen crece, pasar a agregaciones en base de datos.
 
 ## 5. Autenticación y permisos
 

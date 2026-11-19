@@ -10,7 +10,7 @@ Lista de tareas pendientes del proyecto. Se actualiza en cada sesión de trabajo
 | --- | --- | --- | --- | --- |
 | ~~B-01~~ | ~~Botón para cambiar de idioma~~ **HECHO** | P2 | M | Selector desplegable (globo + código) en el encabezado, con ES / EN / PT; conserva la página al cambiar. Los tres idiomas quedan activos. **Pendiente:** la página `/links` sigue solo en español, y no se recuerda el idioma elegido entre visitas. |
 | ~~B-02~~ | ~~Página de enlaces: botones menos altos~~ **HECHO** | P3 | S | Ahora miden 48 px (antes 64) y los logos 34 px, todos con la misma altura. |
-| B-03 | Dónde comprar: mapa con los puntos de venta | P2 | M | **Hecho el mapa (OpenStreetMap).** Faltan las coordenadas de 14 de los 18 locales: ver "Locales para confirmar" más abajo. |
+| B-03 | Dónde comprar: mapa con los puntos de venta | P2 | M | **Hecho el mapa (OpenStreetMap).** Faltan las coordenadas de 14 de los 18 locales: ver "Locales para confirmar" más abajo. | El listado de locales muestra un botón "Ir a" (Google Maps) en cada local que ya tiene coordenadas.
 | B-05 | Menú del header con más vida y versión móvil (icono de tres rayas, portada compacta) | P2 | M | **Hecho.** Página activa con hoja, botón principal "Dónde comprar", menú fijo que se achica. |
 | B-06 | Portada con carrusel administrable desde el panel | P2 | M | **Hecho.** 5 diapositivas cargadas (yerba, azúcar, stevia, comunidad, certificaciones). Pendiente: foto real para la de comunidad (hoy es el logo de la Fundación Moisés Bertoni), imágenes de mayor resolución y traducciones al inglés y portugués. |
 | B-04 | Footer: logos de certificaciones en una fila a todo el ancho, sin links repetidos del header | P3 | S | **Hecho.** En móvil los logos quedan en vertical. |
@@ -57,16 +57,17 @@ Sin coordenadas: son cadenas con varias sucursales o no se pudieron identificar 
 
 | ID | Tarea | Prioridad | Tamaño | Notas |
 | --- | --- | --- | --- | --- |
-| B-10 | Carrito y checkout con tres opciones (ingresar, crear cuenta, invitado) | P1 | L | Las cuentas ya están. Ver `docs/DISENO-CUENTAS-DE-CLIENTE.md`. |
-| B-11 | Pago con Pagopar (y evaluar Bancard) con webhook firmado | P1 | L | Pago en la página de la pasarela: nunca pasan datos de tarjeta por nuestro servidor. Requiere cuenta de comercio. |
+| B-10 | Carrito y checkout con tres opciones (ingresar, crear cuenta, invitado) | ✅ Hecho | L | Carrito, checkout y confirmación con cobro manual. Ver `docs/TIENDA-CARRITO-Y-CHECKOUT.md`. Falta: precios y zonas reales, datos de transferencia, probar en el notebook. |
+| B-11 | Pago con Pagopar (y evaluar Bancard) con webhook firmado | P1 | L | Pago en la página de la pasarela: nunca pasan datos de tarjeta por nuestro servidor. Requiere cuenta de comercio. Hoy el cobro es manual (transferencia/QR o contra entrega). Pagopar: riesgo por su casa matriz; evaluar Bancard vPOS 2.0 (ver `docs/TIENDA-CARRITO-Y-CHECKOUT.md`). |
 | B-12 | Seguimiento de pedido para invitados por enlace del correo | P1 | M | El código secreto del pedido ya se genera. Falta la página y el correo. |
 | B-13 | Oferta de crear cuenta después de comprar y vinculación de pedidos por correo verificado | P2 | M | Solo pide elegir contraseña. |
 | B-14 | Correos de la tienda (confirmación de pedido, cambio de estado, envío) | P1 | M | Depende de B-30. Textos en tres idiomas. |
-| B-15 | Costos y tiempos de envío por zona, con la cobertura real | P1 | S | Las zonas existen; faltan los datos reales de la empresa. |
+| B-15 | Costos y tiempos de envío por zona, con la cobertura real | P1 | S | Las zonas existen y hay 3 de PRUEBA (Asunción, Gran Asunción, Interior); faltan las tarifas reales de la empresa. |
 | B-16 | Stock y disponibilidad por presentación | P2 | M | Hoy solo hay "Disponible" sí o no. Decidir si se controla cantidad. |
 | B-17 | Pantalla de conciliación de cobros contra el extracto | P2 | M | El modelo de datos ya está (campos de cobro y "Conciliado"). |
 | B-18 | Factura: definir cómo se emite (factura electrónica SIFEN u otro sistema) | P1 | M | Decisión con el contador de la empresa. Los datos de RUC y razón social ya se guardan. |
 | B-19 | Política de cambios, devoluciones y plazos de entrega | P2 | S | Texto legal y comercial a definir con la empresa. |
+| B-20a | Panel de pedidos de inicio con filtros y globo de pendientes en el menú | ✅ Hecho | M | Ver `docs/MANUAL-DE-USUARIO.md`. Mejoras futuras: exportar a CSV, comparar contra el período anterior, agregaciones en base si hay muchos pedidos. |
 
 ## 3. Contenido, idiomas y diseño
 
@@ -75,7 +76,7 @@ Sin coordenadas: son cadenas con varias sucursales o no se pudieron identificar 
 | B-20 | Traducciones al inglés y portugués: **borrador cargado**, falta revisión nativa | P2 | S | Se cargaron 116 textos (productos, certificaciones, páginas Nosotros/Comunidad, portada, carrusel, enlaces, textos de imágenes) desde `brand/jerovia/translations.ts` con `npm run seed`. Las notas de prensa quedan en español a propósito. Una persona nativa debe revisar el inglés y el portugués antes de publicar. |
 | B-21 | Imágenes y logos en alta resolución | P1 | S | Los logos de Fortunata y Surya Henna y la portada de la página de enlaces son recortes de baja resolución (provisorios). Pedir originales a la empresa. |
 | B-22 | Fortunata y Surya Henna en el catálogo | P2 | M | Hoy solo existen como botones de la página de enlaces. Definir si son marcas dentro del sitio o sitios aparte. |
-| B-23 | Favicon, ícono de la app e imagen para compartir en redes | P2 | S | Hoy no hay favicon propio. |
+| B-23 | Favicon, ícono de la app e imagen para compartir en redes | P2 | S | **Favicon hecho** (hoja verde de tres folíolos que apuntan a la derecha, como en el logo, con marco bordó; el mismo ícono en el sitio, /links y el panel, en `brand/jerovia/assets/favicon.*`, y ícono para iPhone). **Falta:** imagen para compartir en redes (Open Graph). |
 | B-24 | SEO: mapa del sitio, `robots.txt`, datos estructurados de productos, textos para buscadores | P2 | M | Importante para que el sitio nuevo no pierda posicionamiento frente al actual. |
 | B-25 | Redirecciones desde las direcciones del sitio actual | P1 | S | Evita enlaces rotos y pérdida de posicionamiento al cambiar de sitio. Requiere la lista de direcciones actuales. |
 | B-26 | Buscador de productos y filtros (por categoría, certificación, marca) | P3 | M | |
@@ -121,7 +122,7 @@ Sin coordenadas: son cadenas con varias sucursales o no se pudieron identificar 
 
 ## Orden de trabajo sugerido
 
-1. **Mejoras rápidas pedidas:** B-23 (favicon).
+1. **Mejoras rápidas pedidas:** B-23 (solo falta la imagen para compartir en redes).
 2. **Mapa de puntos de venta:** B-03, una vez que se consigan las coordenadas.
 3. **Idiomas:** revisión nativa de B-20 (el selector B-01 ya está).
 4. **Tienda:** B-30, B-10, B-11, B-12, B-14 y B-15, en ese orden.

@@ -35,6 +35,23 @@ export const SiteSettings: GlobalConfig = {
       ],
     },
     {
+      name: 'payments',
+      type: 'group',
+      label: 'Formas de pago de la tienda',
+      admin: { description: 'Cobro manual mientras no haya pasarela de pagos. Estos datos se muestran al cliente al confirmar el pedido.' },
+      fields: [
+        { name: 'transferEnabled', type: 'checkbox', label: 'Aceptar transferencia o QR', defaultValue: true },
+        {
+          name: 'transferInstructions',
+          type: 'textarea',
+          label: 'Datos para transferir (banco, cuenta, titular, alias o QR)',
+          localized: true,
+          admin: { description: 'El cliente los ve al confirmar el pedido. Pedile que envíe el comprobante por WhatsApp.' },
+        },
+        { name: 'cashEnabled', type: 'checkbox', label: 'Aceptar pago contra entrega o al retirar', defaultValue: true },
+      ],
+    },
+    {
       name: 'social',
       type: 'array',
       label: 'Redes sociales',

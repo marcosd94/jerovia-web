@@ -5,12 +5,14 @@ import { localePath } from '../lib/data'
 import { pick } from '../lib/locale'
 import { t } from '../lib/messages'
 import { ta } from '../lib/messages-account'
+import { ts } from '../lib/messages-shop'
+import { CartLink } from './cart/CartLink'
 import { LocaleSwitch } from './LocaleSwitch'
 import { NavLinks, type NavItem } from './NavLinks'
 import { MobileNav } from './MobileNav'
 import { HeaderScroll } from './HeaderScroll'
 
-export function Header({ locale, announcement, showAccount }: { locale: Locale; announcement?: string | null; showAccount?: boolean }) {
+export function Header({ locale, announcement, showAccount, showCart }: { locale: Locale; announcement?: string | null; showAccount?: boolean; showCart?: boolean }) {
   const items = brand.nav.filter((i) => {
     if (i.href === '/blog') return brand.features.blog
     if (i.href === '/para-empresas') return brand.features.b2b
@@ -37,6 +39,7 @@ export function Header({ locale, announcement, showAccount }: { locale: Locale; 
           </Link>
           <NavLinks items={links} label="Principal" />
           <LocaleSwitch locales={brand.enabledLocales} current={locale} label={t(locale, 'language')} />
+          {showCart ? <CartLink href={localePath(locale, '/carrito')} label={ts(locale, 'cartCount')} /> : null}
           <MobileNav items={links} label={navLabel} />
         </div>
       </header>

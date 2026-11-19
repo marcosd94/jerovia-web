@@ -100,7 +100,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
             </div>
             <div className="grid">
               {featured.map((p) => (
-                <ProductCard key={p.id} product={p} locale={locale} showPrice={showPrice} />
+                <ProductCard key={p.id} product={p} locale={locale} showPrice={showPrice} canBuy={showPrice && brand.features.shop} />
               ))}
             </div>
           </div>

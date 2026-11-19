@@ -98,12 +98,12 @@ export const seed: SeedData = {
       summary: { es: 'Yerba mate paraguaya cultivada sin pesticidas, en envase biodegradable.', en: 'Paraguayan yerba mate grown without pesticides, in biodegradable packaging.' },
       paragraphs: [
         { es: 'Yerba mate orgánica de Paraguay, cultivada sin pesticidas y elaborada con procesos que cuidan el ambiente.' },
-        { es: 'El envase es biodegradable y el producto no contiene gluten. Disponible en paquetes de 500 g y 250 g, y en 25 saquitos.' },
+        { es: 'El envase es biodegradable y el producto no contiene gluten.' },
       ],
       image: 'yerba',
       featured: true,
       order: 1,
-      variants: [{ label: { es: '500 g', en: '500 g' } }, { label: { es: '250 g', en: '250 g' } }, { label: { es: '25 saquitos', en: '25 tea bags' } }],
+      variants: [{ label: { es: '500 g', en: '500 g' }, sku: 'JV-YM-500', price: 15650, prevPrice: 18500 }, { label: { es: '250 g', en: '250 g' }, sku: 'JV-YM-250', price: 8500, prevPrice: 10000 }, { label: { es: '25 saquitos', en: '25 tea bags' }, sku: 'JV-YM-S25', price: 9500 }, { label: { es: '400 g', en: '400 g' }, sku: 'JV-YM-400', price: 13200 }],
       certifications: ['empresa-b', 'sin-gluten-fupacel', 'paraguayo-como-vos'],
     },
     {
@@ -114,11 +114,11 @@ export const seed: SeedData = {
       summary: { es: 'Infusión típica paraguaya, de sabor semi-amargo y levemente dulce.', en: 'Traditional Paraguayan infusion, semi-bitter and slightly sweet.' },
       paragraphs: [
         { es: 'El mate cocido es una infusión típica de la gastronomía paraguaya, de sabor semi-amargo y levemente dulce.' },
-        { es: 'Se elabora con yerba mate y azúcar orgánicas, sin uso de productos químicos. Disponible en 500 g, 250 g y 25 saquitos.' },
+        { es: 'Se elabora con yerba mate y azúcar orgánicas, sin uso de productos químicos.' },
       ],
       featured: true,
       order: 2,
-      variants: [{ label: { es: '500 g' } }, { label: { es: '250 g' } }, { label: { es: '25 saquitos' } }],
+      variants: [{ label: { es: '500 g' }, sku: 'JV-MC-500', price: 16500 }, { label: { es: '250 g' }, sku: 'JV-MC-250', price: 9000 }, { label: { es: '25 saquitos' }, sku: 'JV-MC-S25', price: 8500 }],
       certifications: ['orgullo-nacional', 'paraguayo-como-vos'],
     },
     {
@@ -129,11 +129,10 @@ export const seed: SeedData = {
       summary: { es: 'Azúcar orgánico paraguayo, menos procesado que el convencional.', en: 'Paraguayan organic sugar, less processed than conventional sugar.' },
       paragraphs: [
         { es: 'Azúcar orgánico de Paraguay, menos procesado que el azúcar convencional y producido sin químicos de síntesis.' },
-        { es: 'Disponible en paquetes de 500 g y 250 g.' },
       ],
       featured: true,
       order: 3,
-      variants: [{ label: { es: '500 g' } }, { label: { es: '250 g' } }],
+      variants: [{ label: { es: '500 g' }, sku: 'JV-AZ-500', price: 6500, prevPrice: 16000 }, { label: { es: '250 g' }, sku: 'JV-AZ-250', price: 3500, prevPrice: 9000 }, { label: { es: '1 kg', en: '1 kg' }, sku: 'JV-AZ-1K', price: 11500 }, { label: { es: '2 kg', en: '2 kg' }, sku: 'JV-AZ-2K', price: 20950 }, { label: { es: '5 kg', en: '5 kg' }, sku: 'JV-AZ-5K', price: 48500 }],
       certifications: ['orgullo-nacional', 'paraguayo-como-vos'],
     },
     {
@@ -144,7 +143,7 @@ export const seed: SeedData = {
       summary: { es: 'Sobrecitos individuales para bares, cafés, restaurantes y heladerías.', en: 'Single-serve sachets for bars, cafés, restaurants and ice cream shops.' },
       paragraphs: [{ es: 'Azúcar orgánico en sobrecitos individuales, pensado para bares, cafés, restaurantes y heladerías. Consultá por cantidades y condiciones para tu negocio.' }],
       order: 4,
-      variants: [{ label: { es: 'Sobrecito individual' } }],
+      variants: [{ label: { es: 'Sobrecito individual' }, sku: 'JV-AZ-SOB', price: 200, prevPrice: 300 }, { label: { es: 'Bolsa de 100 sobres', en: 'Bag of 100 sachets', pt: 'Saco com 100 sachês' }, sku: 'JV-AZ-SOB100', price: 19600 }],
       certifications: ['orgullo-nacional'],
     },
     {
@@ -155,7 +154,7 @@ export const seed: SeedData = {
       summary: { es: 'Té de catuaba en caja de 25 saquitos.', en: 'Catuaba tea in a box of 25 tea bags.' },
       paragraphs: [{ es: 'Té de catuaba presentado en caja de 25 saquitos.' }],
       order: 5,
-      variants: [{ label: { es: '25 saquitos' } }],
+      variants: [{ label: { es: '25 saquitos' }, sku: 'JV-CAT-S25', price: 9000 }],
     },
     {
       slug: 'stevia-endulzante',
@@ -170,7 +169,7 @@ export const seed: SeedData = {
       image: 'stevia',
       featured: true,
       order: 6,
-      variants: [{ label: { es: '100 sobres de 1 g', en: '100 sachets of 1 g' } }],
+      variants: [{ label: { es: '100 sobres de 1 g', en: '100 sachets of 1 g' }, sku: 'JV-ST-100', price: 31800, prevPrice: 25000 }, { label: { es: '200 sobres de 1 g', en: '200 sachets of 1 g', pt: '200 sachês de 1 g' }, sku: 'JV-ST-200', price: 53800 }],
       certifications: ['empresa-b', 'apto-diabeticos-fupadi', 'paraguayo-como-vos'],
     },
     {
@@ -202,6 +201,46 @@ export const seed: SeedData = {
       paragraphs: [{ es: 'Yerba mate saborizada con burrito, manzanilla, anís y stevia. Completar presentaciones y descripción con la empresa.' }],
       order: 9,
       variants: [{ label: { es: 'A confirmar' } }],
+    },
+    {
+      slug: 'natural-mate-tea-mix-naranja',
+      name: { es: 'Natural Mate Tea Mix naranja', en: 'Natural Mate Tea Orange mix', pt: 'Natural Mate Tea Mix de laranja' },
+      category: 'infusiones',
+      brand: 'jerovia-natural',
+      summary: { es: 'Infusión natural de mate con hierbas, sabor mix naranja.', en: 'Natural mate infusion with herbs, orange mix flavor.', pt: 'Infusão natural de mate com ervas, sabor mix de laranja.' },
+      paragraphs: [{ es: 'Natural Mate Tea sabor mix naranja. Completar descripción con la empresa.', en: 'Natural Mate Tea, orange mix flavor. Description to be completed with the company.', pt: 'Natural Mate Tea sabor mix de laranja. Descrição a completar com a empresa.' }],
+      order: 10,
+      variants: [{ label: { es: '85 g' }, sku: 'JV-NMT-NAR', price: 14200 }],
+    },
+    {
+      slug: 'natural-mate-tea-siempre-viva',
+      name: { es: 'Natural Mate Tea Siempre viva', en: 'Natural Mate Tea Everlasting flower', pt: 'Natural Mate Tea Sempre-viva' },
+      category: 'infusiones',
+      brand: 'jerovia-natural',
+      summary: { es: 'Infusión natural de mate con hierbas, sabor siempre viva.', en: 'Natural mate infusion with herbs, everlasting flower flavor.', pt: 'Infusão natural de mate com ervas, sabor sempre-viva.' },
+      paragraphs: [{ es: 'Natural Mate Tea sabor siempre viva. Completar descripción con la empresa.', en: 'Natural Mate Tea, everlasting flower flavor. Description to be completed with the company.', pt: 'Natural Mate Tea sabor sempre-viva. Descrição a completar com a empresa.' }],
+      order: 11,
+      variants: [{ label: { es: '40 g' }, sku: 'JV-NMT-SV', price: 14200 }],
+    },
+    {
+      slug: 'natural-mate-tea-manzanilla',
+      name: { es: 'Natural Mate Tea Manzanilla', en: 'Natural Mate Tea Chamomile', pt: 'Natural Mate Tea Camomila' },
+      category: 'infusiones',
+      brand: 'jerovia-natural',
+      summary: { es: 'Infusión natural de mate con hierbas, sabor manzanilla.', en: 'Natural mate infusion with herbs, chamomile flavor.', pt: 'Infusão natural de mate com ervas, sabor camomila.' },
+      paragraphs: [{ es: 'Natural Mate Tea sabor manzanilla. Completar descripción con la empresa.', en: 'Natural Mate Tea, chamomile flavor. Description to be completed with the company.', pt: 'Natural Mate Tea sabor camomila. Descrição a completar com a empresa.' }],
+      order: 12,
+      variants: [{ label: { es: '40 g' }, sku: 'JV-NMT-MZ', price: 14200 }],
+    },
+    {
+      slug: 'natural-mate-tea-mix-de-mate',
+      name: { es: 'Natural Mate Tea Mix de mate', en: 'Natural Mate Tea Mate mix', pt: 'Natural Mate Tea Mix de mate' },
+      category: 'infusiones',
+      brand: 'jerovia-natural',
+      summary: { es: 'Infusión natural de mate con hierbas, sabor mix de mate.', en: 'Natural mate infusion with herbs, mate mix flavor.', pt: 'Infusão natural de mate com ervas, sabor mix de mate.' },
+      paragraphs: [{ es: 'Natural Mate Tea sabor mix de mate. Completar descripción con la empresa.', en: 'Natural Mate Tea, mate mix flavor. Description to be completed with the company.', pt: 'Natural Mate Tea sabor mix de mate. Descrição a completar com a empresa.' }],
+      order: 13,
+      variants: [{ label: { es: '100 g' }, sku: 'JV-NMT-MM', price: 14200 }],
     },
   ],
   posts: [
@@ -354,5 +393,10 @@ export const seed: SeedData = {
       },
     ],
   },
-  deliveryZones: [],
+  // Zonas y costos de PRUEBA: reemplazar por las tarifas reales de la empresa desde el panel (Ventas > Zonas de entrega)
+  deliveryZones: [
+    { name: { es: 'Asunción', en: 'Asunción', pt: 'Assunção' }, price: 15000, eta: { es: '24 a 48 horas', en: '24 to 48 hours', pt: '24 a 48 horas' } },
+    { name: { es: 'Gran Asunción', en: 'Greater Asunción', pt: 'Grande Assunção' }, price: 25000, eta: { es: '48 horas', en: '48 hours', pt: '48 horas' } },
+    { name: { es: 'Interior del país', en: 'Rest of the country', pt: 'Interior do país' }, price: 40000, eta: { es: '3 a 5 días hábiles', en: '3 to 5 business days', pt: '3 a 5 dias úteis' } },
+  ],
 }

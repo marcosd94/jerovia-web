@@ -2,16 +2,20 @@ import Link from 'next/link'
 import type { Locale } from '@brand/types'
 import { asMedia, formatPrice, localePath, mediaUrl } from '../lib/data'
 import { t } from '../lib/messages'
+import { shopMessages } from '../lib/messages-shop'
 import type { Category, Product } from '../payload-types'
+import { AddToCart } from './cart/AddToCart'
 import { LeafMark } from './LeafMark'
 
-export function ProductCard({ product, locale, showPrice }: { product: Product; locale: Locale; showPrice: boolean }) {
+type Props = { product: Product; locale: Locale; showPrice: boolean; canBuy?: boolean }
+
+export function ProductCard({ product, locale, showPrice, canBuy = false }: Props) {
   const category = typeof product.category === 'object' ? (product.category as Category) : null
   const image = mediaUrl(product.image, 'card')
   const alt = asMedia(product.image)?.alt ?? product.name
-  const variants = product.variants ?? []
-  const prices = variants.map((v) => v.price).filter((p): p is number => typeof p === 'number')
-  const minPrice = prices.length ? Math.min(...prices) : null
+  const hasPrice = typeof product.price === 'number' && product.price > 0
+  const soldOut = product.available === false
+  const buyable = canBuy && hasPrice && !soldOut
 
   return (
     <article className={`card tone-${category?.tone ?? 'tone1'}`}>
@@ -21,13 +25,18 @@ export function ProductCard({ product, locale, showPrice }: { product: Product; 
         </div>
         <div className="card-body">
           <h3>{product.name}</h3>
+          {product.presentation ? <p className="card-meta">{product.presentation}</p> : null}
           {product.summary ? <p className="card-summary">{product.summary}</p> : null}
-          <p className="card-meta">{variants.map((v) => v.label).join(', ')}</p>
           <p className="card-cta">
-            {showPrice && minPrice !== null ? <strong>{`${t(locale, 'priceFrom')} ${formatPrice(minPrice)}`}</strong> : <span>{t(locale, 'moreInfo')}</span>}
+            {soldOut ? <span>{t(locale, 'soldOut')}</span> : showPrice && hasPrice ? <strong>{formatPrice(product.price as number)}</strong> : <span>{showPrice ? t(locale, 'askPrice') : t(locale, 'moreInfo')}</span>}
           </p>
         </div>
       </Link>
+      {buyable ? (
+        <div className="card-buy">
+          <AddToCart productId={product.id} label={[product.name, product.presentation].filter(Boolean).join(' ')} m={shopMessages(locale)} />
+        </div>
+      ) : null}
     </article>
   )
 }
