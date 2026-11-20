@@ -99,7 +99,8 @@ jerovia-web/
 | `customers` | Ventas → Clientes | Cuentas de clientes de la tienda | Solo la propia |
 | `products` | Catálogo → Productos | Un producto = una presentación (presentación, SKU, precio, grupo), fotos, certificaciones | Publicados |
 | `categories` | Catálogo → Categorías | Agrupan productos | Visibles |
-| `brands` | Catálogo → Marcas | Marcas de productos | Sí |
+| `brands` | Catálogo → Marcas | Marcas comerciales (Jerovia) | Sí |
+| `product-lines` | Catálogo → Líneas | Líneas de una marca (Orgánico, Natural); cada línea pertenece a una marca | Sí |
 | `certifications` | Catálogo → Certificaciones | Sellos y certificaciones | Sí |
 | `store-locations` | Contenido → Puntos de venta | Dónde comprar | Visibles |
 | `posts` | Contenido → Notas | Blog y prensa | Publicadas |
@@ -130,7 +131,12 @@ Un pedido sin `account` es una compra de invitado: guarda igual una copia de los
 ### Panel de pedidos del administrador
 
 - `src/components/admin/OrdersDashboard.tsx`: componente de servidor registrado en `admin.components.views.dashboard.Component`. Lee los filtros de la URL (`desde`, `hasta`, `rango`, `estado`, `entrega`, `pago`, `cliente`, `zona`), consulta con la API local usando el usuario (`overrideAccess: false`, así respeta los permisos de cada rol) y calcula con `src/lib/order-stats.ts` (funciones puras, fechas en UTC-3).
-- `src/components/admin/OrdersBadge.tsx`: componente de cliente en `admin.components.beforeNavLinks`. Consulta `/api/orders/count` cada 60 s y al enfocar la pestaña, y dibuja el globo con CSS sobre el enlace `a[href$="/collections/orders"]`.
+- `src/components/admin/AdminShortcuts.tsx`: componente de cliente en `admin.components.beforeNavLinks`. Muestra "Inicio" y "Preparación de pedidos" y dibuja los globos (Pedidos: pendientes de pago + pagados; Preparación: aprobados) consultando `/api/orders/count` cada 60 s.
+- `src/components/admin/LogisticsNav.tsx`: grupo "Logística / Envíos" en `admin.components.afterNavLinks`, con el enlace a Preparación y su globo (pedidos aprobados).
+- `src/scripts/seed.ts`: si el archivo de una imagen de la marca cambia (mismo nombre, distinto tamaño), el seed reemplaza la imagen ya cargada (así se actualizó el logo de la Fundación Moisés Bertoni).
+- `src/components/admin/PreparationView.tsx` + `PrepCard.tsx`: vista propia `/admin/preparacion` (`admin.components.views.preparacion`). Lista los pedidos aprobados (pestaña "Por preparar") y enviados o listos para retirar; los botones cambian el estado y guardan la nota de envío con `PATCH /api/orders/:id`. Los pedidos siguen en la lista general.
+- `src/lib/phone.ts`, `PhoneField.tsx`: prefijo de país (Paraguay por defecto) y número guardado en formato internacional (+595…); el admin lo vuelve a verificar antes de ofrecer WhatsApp.
+- Mapa: la URL de mosaicos es `NEXT_PUBLIC_MAP_TILES` (por defecto CARTO; el servidor público de OpenStreetMap bloquea el uso sin dominio propio). Contratar proveedor antes de producción.
 - Estilos `.ord-*` en `src/app/(payload)/custom.css`. Tras tocar `admin.components` ejecutar `npx payload generate:importmap`.
 - Límite: la consulta trae hasta 5000 pedidos por vista; si el volumen crece, pasar a agregaciones en base de datos.
 
@@ -191,6 +197,22 @@ Antes de publicar (detalle en `docs/SEGURIDAD.md`):
 - Los commits terminan con la línea de autoría que corresponda; los mensajes describen el *porqué*.
 - `.env`, `data/`, `media/` y `public/brand/` están en `.gitignore`.
 
+### Marca, línea y categoría
+
+El producto tiene tres clasificaciones independientes: `brand` (marca, colección `brands`), `line` (línea, colección `product-lines`, con `brand` obligatorio) y `category` (tipo de producto). El campo `line` del producto filtra sus opciones por la marca elegida (`filterOptions`). El seed (`brand/<marca>/seed.ts`: `brands`, `lines`, y `brand`/`line` en cada producto) migra los datos viejos: los productos que apuntaban a las marcas «Jerovia Orgánico» y «Jerovia Natural» pasan a la marca *Jerovia* con la línea correspondiente. Esas dos marcas viejas **no se borran solas**: quedan sin productos y se pueden eliminar desde el panel.
+
+### Aprobación de pedidos
+
+`POST /api/orders/:id/approve` (endpoint de la colección `orders`, `src/collections/Orders.ts`). Solo `admin` y `gestor`; exige `paymentVerified: true`, solo acepta pedidos en `pendiente_pago` o `pagado` (si no, 409), pasa el estado a `aprobado` y guarda `approval.approvedBy`, `approval.approvedAt` y `approval.approvalNote`. El cambio queda en el registro de actividad. La barra de contacto y el botón son `src/components/admin/OrderActions.tsx` (campo `ui` al inicio del pedido); el teléfono se normaliza con `src/lib/phone.ts` (Paraguay, código 595).
+
+### Catálogo público
+
+`productos/page.tsx` arma la lista en el servidor y `src/components/CatalogTools.tsx` (cliente) agrega el buscador instantáneo (sin acentos ni mayúsculas, busca en nombre, presentación, resumen, código, categoría y línea) y la vista en grilla o filas para el celular (se recuerda en `localStorage`, clave `jv_catalog_view`). Los filtros de categoría y línea son enlaces (`?categoria=…&linea=…`) y se combinan.
+
+### Base de desarrollo (SQLite)
+
+Cuando un cambio agrega una relación a una tabla existente, el modo automático de SQLite puede fallar con `index … already exists`. Los datos no se pierden: volver a ejecutar `npm run seed` hasta que termine (a veces hacen falta dos o tres corridas). En PostgreSQL se usan migraciones (ver pendientes).
+
 ## 9. Pendientes técnicos conocidos
 
 | Tema | Estado |
@@ -202,3 +224,18 @@ Antes de publicar (detalle en `docs/SEGURIDAD.md`):
 | Límite de intentos compartido entre servidores | Hoy en memoria; pasar a un almacén compartido o al WAF |
 | Traducciones `en` y `pt` del contenido del catálogo | Estructura lista; falta cargar los textos |
 | Tarjetas de producto y colecciones de Fortunata y Surya Henna | Hoy solo como botones de la página de enlaces |
+
+## 10. Cambios de la ronda 5
+
+- `PhoneField`: selector propio (botón con bandera + lista `role=listbox`); banderas SVG de `flag-icons` en `public/flags/<código>.svg` (los emoji no se ven en Windows). El input usa `flex:1 1 0; min-width:0` para no desbordar en móvil.
+- `SiteSettings`: `minOrder` (número, 100000) y `payments.receiptPhone`. La compra mínima se valida en la UI (`CartView`, `CheckoutForm`) y en el servidor (`placeOrder` → `errMinOrder`). Tras cambiar el esquema: `payload generate:types` y reiniciar el servidor (en dev se aplica el push de esquema).
+- Límite de intentos: ahora se cuenta justo antes de crear el pedido (12 por 30 min por IP) y no en cada validación; esto corrigió el error «Demasiados intentos».
+- Checkout: el botón *Confirmar pedido* está dentro del resumen (`<button form="checkout-form">`) para que el costo de envío quede visible antes en móvil.
+- Admin: `PreparationView` se envuelve en `DefaultTemplate` para conservar el menú; `OrderItemsField` (campo personalizado del array `items` de Pedidos) muestra la tarjeta de solo lectura con borrado por fila (`removeFieldRow`) y el `ArrayField` original dentro de un `<details>`. Requiere `payload generate:importmap`.
+- `PrepCard`: clases `prep-card--pickup|courier` y `prep-method--pickup|courier` para los colores.
+
+- Límites de intentos (`allow(clave, máximo, ventana)` de `src/lib/ratelimit.ts`): pedido 12/30 min en `checkout/actions.ts`; login 15/10 min, registro 5/h, recuperar y cambiar contraseña en `cuenta/actions.ts`; cotización del carrito 120/min en `carrito/actions.ts`. Se ajustan en esas líneas.
+- Videos de Nosotros: `aboutPage.videos` en `brand/<id>/index.ts` (id de YouTube por idioma); se incrustan con `youtube-nocookie.com`, permitido en la CSP (`frame-src` de `next.config.mjs`).
+- Pedidos: `items` usa `initCollapsed` y `RowLabel` (`OrderItemRowLabel`).
+
+- Fotos en Vercel: `@payloadcms/storage-vercel-blob` se activa solo con `BLOB_READ_WRITE_TOKEN` (`payload.config.ts`); `mediaUrl` conserva las direcciones absolutas de Blob y la CSP permite `*.public.blob.vercel-storage.com`. Ver `docs/DESPLIEGUE-VERCEL.md`.

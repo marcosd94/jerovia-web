@@ -119,6 +119,25 @@ La pantalla de ingreso pide dos datos: **Correo** y **Contraseña**. Después de
 
 **Paso a paso:** *Crear nuevo* → completar nombre y logo → *Guardar*. Luego, en cada producto, elegir la marca en el campo *Marca*.
 
+## Líneas
+
+**Menú:** Catálogo → Líneas. Una **marca** puede tener varias **líneas**: por ejemplo, la marca *Jerovia* tiene las líneas *Orgánico* y *Natural*. No son marcas distintas.
+
+Cómo se ordena el catálogo:
+
+| Concepto | Pregunta que responde | Ejemplo |
+| --- | --- | --- |
+| Marca | ¿De quién es? | Jerovia |
+| Línea | ¿De qué familia de la marca? | Orgánico, Natural |
+| Categoría | ¿Qué tipo de producto es? | Yerba mate, azúcar, stevia |
+
+| Campo | Qué poner |
+| --- | --- |
+| Nombre de la línea (obligatorio) | Solo el nombre, sin repetir la marca. Ej.: Orgánico. |
+| Marca (obligatorio) | La marca a la que pertenece. |
+| Orden | Número menor = aparece primero. |
+
+En cada producto se elige la *Marca* y luego la *Línea* (la lista ofrece solo las líneas de esa marca). En el sitio, la ficha muestra «Jerovia · Orgánico» y el catálogo permite filtrar por línea.
 ## Certificaciones
 
 **Menú:** Catálogo → Certificaciones. Son los sellos (orgánico, comercio justo, etc.) que se muestran en los productos y, si se elige, en el pie de página.
@@ -315,6 +334,17 @@ Al entrar al panel de administración lo primero que se ve es el **Panel de pedi
 
 Las fechas se toman en hora de Paraguay.
 
+## Preparación de pedidos
+
+En el menú de la izquierda, **Inicio** lleva al panel de pedidos y, al final del menú, el grupo **Logística / Envíos** tiene **Preparación de pedidos**: la lista de trabajo del equipo de logística.
+
+- **Por preparar**: todos los pedidos aprobados. Cada tarjeta muestra qué armar (cantidades y productos), la dirección o si retira en el local, y el teléfono ya verificado con botones de **WhatsApp** y **Llamar**.
+- **En camino o para retirar**: los pedidos ya enviados o listos para retirar.
+- Los botones de cada tarjeta cambian el estado (enviado, listo para retirar, entregado) y se puede guardar la nota de envío (guía, courier).
+- Los pedidos aprobados **siguen apareciendo** en la lista general de Pedidos.
+- El mensaje de WhatsApp saluda con nombre y apellido e incluye la fecha del pedido, los productos con cantidades y el total.
+- Si el teléfono de un pedido no sirve para WhatsApp, aparece una advertencia y los botones no se muestran: corregir el número en el pedido.
+
 ## Pedidos y zonas de entrega
 
 Estas secciones se usan cuando la tienda está activada (*Configuración del sitio*). Con la tienda apagada, el sitio solo muestra el catálogo.
@@ -343,6 +373,10 @@ Cada pedido tiene número propio, datos del cliente (nombre, teléfono, correo, 
 | Cancelado | No se concreta. |
 
 **Cobro y conciliación:** en cada pedido se registra el medio de cobro, el código de transacción que informa la pasarela, la fecha y el monto cobrado. Cuando el cobro coincide con el extracto bancario se marca *Conciliado*, con una nota si hace falta.
+
+**Contactar a quien compró:** al abrir un pedido, arriba queda fija una barra con el nombre y el teléfono del cliente y los botones **WhatsApp** (abre el chat con un saludo ya escrito) y **Llamar**. Se ve en todos los roles que pueden abrir pedidos.
+
+**Aprobar un pedido** (Administración y Gestión): cuando el cobro está verificado (llegó la transferencia, el pago por la pasarela o el pedido es contra entrega), en la barra de arriba se toca **Aprobar pedido**, se marca *Verifiqué que el cobro llegó* y se confirma. El pedido pasa a *Aprobado (listo para enviar)*, queda registrado quién lo aprobó y cuándo (sección *Aprobación del pedido*) y Logística lo ve en su lista para prepararlo. Se puede agregar una nota (por ejemplo, el comprobante). Si hay cambios sin guardar en el pedido, primero hay que guardarlos. Un pedido ya aprobado no se puede aprobar dos veces.
 
 **Envío:** Logística anota la guía o el courier en *Nota de envío* y avanza el estado a *Enviado*.
 
@@ -408,3 +442,15 @@ Es una lista de consulta: muestra quién cambió qué y cuándo (fecha, usuario,
 | El botón de WhatsApp no abre el chat | El número debe tener solo dígitos y código de país (595...). |
 
 **Antes de empezar a cargar contenido real:** cambiá tu contraseña inicial y usá una larga y única. Nunca compartas tu usuario con otra persona; cada una debe tener el suyo.
+
+## Novedades de la ronda 5 (tienda y pedidos)
+
+- **Compra mínima:** en *Configuración del sitio* hay un campo *Compra mínima* (por defecto Gs. 100.000). Si el carrito no llega, el cliente ve cuánto le falta y no puede confirmar.
+- **Teléfono para recibir comprobantes:** en *Configuración del sitio → Pagos*. Es el número de WhatsApp al que el cliente envía el comprobante; si está vacío se usa el WhatsApp general.
+- **Pedidos → Productos del pedido:** ahora se ven en una tarjeta compacta (cantidad × producto, precio y subtotal). Se quita un producto con el ícono de basurero; para agregar o corregir se abre *Agregar o corregir productos*. Los cambios se aplican al **Guardar**.
+- **Preparación de pedidos:** abre dentro del panel (con el menú). El rótulo de cada tarjeta distingue *Retiro en el local* (violeta) de *Envío a domicilio* (azul).
+- **Productos del sitio:** el selector de cantidad y los botones agregar / actualizar / quitar quedan a la derecha del producto; el teléfono tiene selector de país con banderas.
+
+- **Pedidos de retiro** se marcan en naranja en *Preparación de pedidos* (los envíos, en azul).
+- **Agregar o corregir productos:** los ítems aparecen cerrados con el título «Item 01 - NOMBRE DEL PRODUCTO»; el botón verde *Añadir Item* suma productos.
+- **Nosotros:** incluye la sección *Audiovisual Jerovia* con los videos en español e inglés.
