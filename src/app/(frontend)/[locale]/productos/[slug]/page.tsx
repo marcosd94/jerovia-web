@@ -35,6 +35,9 @@ export default async function ProductPage({ params }: Props) {
   const hasPrice = typeof product.price === 'number' && product.price > 0
   const buyable = hasPrice && product.available !== false
   const wa = brand.features.whatsapp ? whatsappLink(settings.whatsapp, t(locale, 'whatsappProduct', { name: product.name })) : null
+  const brandName = typeof product.brand === 'object' && product.brand ? product.brand.name : null
+  const lineName = typeof product.line === 'object' && product.line ? product.line.name : null
+  const brandLine = [brandName, lineName].filter(Boolean).join(' · ')
   const certs = (product.certifications ?? []).filter((c): c is Certification => typeof c === 'object')
 
   return (
@@ -44,6 +47,7 @@ export default async function ProductPage({ params }: Props) {
           {image ? <img src={image} alt={asMedia(product.image)?.alt ?? product.name} /> : <LeafMark className="card-placeholder" />}
         </div>
         <div className="product-info">
+          {brandLine ? <p className="product-brandline">{brandLine}</p> : null}
           <h1>{product.name}</h1>
           {product.summary ? <p className="summary">{product.summary}</p> : null}
           {product.presentation ? <p className="product-presentation">{product.presentation}</p> : null}

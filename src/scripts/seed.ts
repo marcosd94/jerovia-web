@@ -1,5 +1,6 @@
 // Carga el contenido inicial de la marca activa (brand/active.ts). Se puede ejecutar varias veces sin duplicar datos.
 // Uso:  npm run seed
+import fs from 'fs'
 import path from 'path'
 import { getPayload, type Payload } from 'payload'
 
@@ -9,7 +10,7 @@ import config from '../payload.config'
 import { toLexical } from '../lib/lexical'
 import { slugify } from '../lib/slug'
 
-type Slugged = 'categories' | 'brands' | 'certifications' | 'products' | 'posts' | 'pages'
+type Slugged = 'categories' | 'brands' | 'product-lines' | 'certifications' | 'products' | 'posts' | 'pages'
 
 async function main() {
   const payload = await getPayload({ config })
@@ -58,11 +59,18 @@ async function main() {
   const mediaIds = new Map<string, number | string>()
   for (const m of seed.media) {
     const existing = await payload.find({ collection: 'media', where: { filename: { equals: m.file } }, limit: 1, depth: 0 })
+    const filePath = path.resolve(process.cwd(), brandDir, 'assets', m.file)
     if (existing.docs[0]) {
       mediaIds.set(m.key, existing.docs[0].id)
+      // Si el archivo de la marca cambió (ej. un logo nuevo), se reemplaza la imagen ya cargada
+      const size = fs.statSync(filePath).size
+      if (existing.docs[0].filesize !== size) {
+        await payload.update({ collection: 'media', id: existing.docs[0].id, data: {}, filePath, overwriteExistingFiles: true, locale: 'es' } as Parameters<Payload['update']>[0])
+        log(`Imagen reemplazada: ${m.file}`)
+      }
       continue
     }
-    const doc = await payload.create({ collection: 'media', data: { alt: m.alt.es }, filePath: path.resolve(process.cwd(), brandDir, 'assets', m.file), locale: 'es' })
+    const doc = await payload.create({ collection: 'media', data: { alt: m.alt.es }, filePath, locale: 'es' })
     mediaIds.set(m.key, doc.id)
     log(`Imagen cargada: ${m.file}`)
   }
@@ -83,12 +91,30 @@ async function main() {
     const doc = await payload.create({ collection: 'brands', locale: 'es', data: { name: b.name.es, slug: b.slug, description: b.description?.es, logo: b.logo ? (mediaIds.get(b.logo) as number) : undefined } })
     brandIds.set(b.slug, doc.id)
   }
+  // Líneas de cada marca (Jerovia → Orgánico, Natural)
+  const lineIds = new Map<string, number | string>()
+  for (const l of seed.lines ?? []) {
+    const found = await findBySlug('product-lines', l.slug)
+    if (found) { lineIds.set(l.slug, found.id); continue }
+    const doc = await payload.create({ collection: 'product-lines', locale: 'es', data: { name: l.name.es, slug: l.slug, brand: brandIds.get(l.brand) as number, order: l.order, description: l.description?.es } })
+    await translate('product-lines', doc.id, { name: l.name, description: l.description })
+    lineIds.set(l.slug, doc.id)
+    log(`Línea cargada: ${l.name.es}`)
+  }
 
   // ---------- Certificaciones ----------
   const certIds = new Map<string, number | string>()
   for (const c of seed.certifications) {
     const found = await findBySlug('certifications', c.slug)
-    if (found) { certIds.set(c.slug, found.id); continue }
+    if (found) {
+      certIds.set(c.slug, found.id)
+      // Si la certificación existía sin logo y ahora la marca trae uno, se lo agrega (y se muestra en el pie si corresponde) (no pisa un logo ya cargado)
+      if (c.logo && mediaIds.get(c.logo)) {
+        const cur = await payload.findByID({ collection: 'certifications', id: found.id, depth: 0, locale: 'es' })
+        if (!cur.logo) await payload.update({ collection: 'certifications', id: found.id, locale: 'es', data: { logo: mediaIds.get(c.logo) as number, showInFooter: Boolean(c.footer) } })
+      }
+      continue
+    }
     const doc = await payload.create({
       collection: 'certifications',
       locale: 'es',
@@ -128,6 +154,13 @@ async function main() {
       // Precio de prueba anterior que nadie tocó: se actualiza al valor de referencia nuevo (si se editó en el panel, no se pisa)
       else if (v.prevPrice != null && v.price != null && doc.price === v.prevPrice) data.price = v.price
       if (!doc.family) data.family = p.slug
+      // Marca y línea: antes "Jerovia Orgánico" y "Jerovia Natural" eran dos marcas. Ahora la marca es Jerovia y esas son líneas.
+      // Solo se corrige si el producto sigue apuntando a una de esas dos marcas viejas o no tiene línea (no se pisa lo elegido en el panel).
+      const cur = (await payload.findByID({ collection: 'products', id: existing.id, depth: 1, overrideAccess: true })) as unknown as { brand?: { slug?: string } | number | null; line?: unknown }
+      const curBrandSlug = cur.brand && typeof cur.brand === 'object' ? cur.brand.slug : undefined
+      const legacyBrand = curBrandSlug === 'jerovia-organico' || curBrandSlug === 'jerovia-natural'
+      if ((legacyBrand || !cur.brand) && brandIds.get(p.brand)) data.brand = brandIds.get(p.brand) as number
+      if (!cur.line && p.line && lineIds.get(p.line) && (legacyBrand || !cur.brand || curBrandSlug === p.brand)) data.line = lineIds.get(p.line) as number
       // Las descripciones de antes listaban todas las presentaciones ("Disponible en 500 g, 250 g..."): ahora cada producto es una sola.
       // Solo se reescriben si todavía tienen esa frase exacta de la carga inicial (no se pisa lo editado en el panel).
       for (const loc of ['es', 'en', 'pt'] as const) {
@@ -159,6 +192,7 @@ async function main() {
         family: p.slug,
         category: categoryIds.get(p.category) as number,
         brand: brandIds.get(p.brand) as number,
+        line: p.line ? (lineIds.get(p.line) as number) : undefined,
         summary: p.summary.es,
         description: toLexical(p.paragraphs.map((x) => x.es)) as never,
         image: p.image ? (mediaIds.get(p.image) as number) : undefined,

@@ -15,7 +15,19 @@ export const Products: CollectionConfig = {
     { name: 'name', type: 'text', label: 'Nombre', localized: true, required: true },
     { name: 'slug', type: 'text', label: 'Dirección web', required: true, unique: true, index: true, hooks: { beforeValidate: [slugFrom('name')] }, admin: { position: 'sidebar', description: 'Se completa sola a partir del nombre.' } },
     { name: 'category', type: 'relationship', relationTo: 'categories', label: 'Categoría', required: true, admin: { position: 'sidebar' } },
-    { name: 'brand', type: 'relationship', relationTo: 'brands', label: 'Marca', admin: { position: 'sidebar' } },
+    { name: 'brand', type: 'relationship', relationTo: 'brands', label: 'Marca', admin: { position: 'sidebar', description: 'La marca comercial. Ejemplo: Jerovia.' } },
+    {
+      name: 'line',
+      type: 'relationship',
+      relationTo: 'product-lines',
+      label: 'Línea',
+      admin: { position: 'sidebar', description: 'Familia dentro de la marca. Ejemplo: Orgánico o Natural. Solo se ofrecen las líneas de la marca elegida.' },
+      filterOptions: ({ siblingData }) => {
+        const b = (siblingData as { brand?: number | string | { id: number | string } | null })?.brand
+        const id = b && typeof b === 'object' ? b.id : b
+        return id ? { brand: { equals: id } } : true
+      },
+    },
     { name: 'featured', type: 'checkbox', label: 'Destacado en la portada', defaultValue: false, admin: { position: 'sidebar' } },
     { name: 'order', type: 'number', label: 'Orden', defaultValue: 100, admin: { position: 'sidebar', description: 'Número menor = aparece primero.' } },
     { name: 'summary', type: 'textarea', label: 'Resumen (una o dos líneas)', localized: true, maxLength: 220 },

@@ -68,6 +68,7 @@ Sin coordenadas: son cadenas con varias sucursales o no se pudieron identificar 
 | B-18 | Factura: definir cómo se emite (factura electrónica SIFEN u otro sistema) | P1 | M | Decisión con el contador de la empresa. Los datos de RUC y razón social ya se guardan. |
 | B-19 | Política de cambios, devoluciones y plazos de entrega | P2 | S | Texto legal y comercial a definir con la empresa. |
 | B-20a | Panel de pedidos de inicio con filtros y globo de pendientes en el menú | ✅ Hecho | M | Ver `docs/MANUAL-DE-USUARIO.md`. Mejoras futuras: exportar a CSV, comparar contra el período anterior, agregaciones en base si hay muchos pedidos. |
+| B-20b | Marca / Línea / Categoría separadas, aprobación de pedidos, contacto con el comprador y buscador del catálogo | ✅ Hecho | M | Ver `docs/MANUAL-DE-USUARIO.md`. Pendiente: pantalla propia de envíos para Logística (hoy ve los pedidos aprobados en la lista de Pedidos) y borrar las marcas viejas vacías. |
 
 ## 3. Contenido, idiomas y diseño
 
@@ -110,6 +111,7 @@ Sin coordenadas: son cadenas con varias sucursales o no se pudieron identificar 
 | B-51 | Exportar clientes, pedidos y solicitudes a CSV | P3 | S | Con cuidado por los datos personales. |
 | B-52 | Avisos al equipo (correo o WhatsApp) cuando llega un pedido o una solicitud de empresa | P2 | M | |
 | B-53 | Cambiar el estado de varios pedidos a la vez | P3 | S | |
+| B-55 | Resumen por correo 3 veces al día (08:00, 12:00 y 17:00, hora de Paraguay): pedidos nuevos, pedidos pendientes de pago o de aprobación, aprobados pendientes de envío y estado general, para que cada responsable gestione lo que le toca | P2 | M | Depende de B-30 (correo) y de una tarea programada. Cada rol recibe solo lo suyo (Logística: por preparar y en camino). Evitar enviar si no hay nada pendiente. |
 | B-54 | Medición de Google Analytics: ID real, eventos de compra y de la página de enlaces | P2 | S | Hace falta crear la propiedad GA4. |
 
 ## 6. Verificaciones abiertas
