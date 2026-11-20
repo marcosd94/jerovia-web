@@ -2,6 +2,7 @@ import { randomBytes } from 'node:crypto'
 import type { CollectionConfig, Field, Where } from 'payload'
 import { fieldAdminOrGestor, fieldBackoffice, fieldBackofficeOrCustomer, hasRole, isAdmin, isCustomer, visibleTo } from '../access'
 import { auditChange, auditDelete } from '../lib/audit'
+import { normalizePhone } from '../lib/phone'
 
 // Los pedidos de la tienda se crean desde el servidor (fase "Carrito y pagos").
 // Esta colección ya deja listo el modelo de datos, los roles y la conciliación de cobros.
@@ -31,6 +32,32 @@ export const Orders: CollectionConfig = {
     update: ({ req: { user } }) => hasRole(user, 'admin', 'gestor', 'logistica'),
     delete: isAdmin,
   },
+  endpoints: [
+    {
+      // Aprobar un pedido: solo Administración y Gestión. Verifica el estado, deja constancia de quién y cuándo, y lo pasa a Logística.
+      path: '/:id/approve',
+      method: 'post',
+      handler: async (req) => {
+        if (!hasRole(req.user, 'admin', 'gestor')) return Response.json({ error: 'No tenés permiso para aprobar pedidos.' }, { status: 403 })
+        const id = req.routeParams?.id as string | undefined
+        const body = (await (req.json?.() ?? Promise.resolve({}))) as { paymentVerified?: unknown; note?: unknown }
+        if (body.paymentVerified !== true) return Response.json({ error: 'Confirmá que verificaste el cobro antes de aprobar.' }, { status: 400 })
+        if (!id) return Response.json({ error: 'Falta el pedido.' }, { status: 400 })
+        const order = await req.payload.findByID({ collection: 'orders', id, depth: 0, overrideAccess: true, req }).catch(() => null)
+        if (!order) return Response.json({ error: 'No se encontró el pedido.' }, { status: 404 })
+        if (order.status !== 'pendiente_pago' && order.status !== 'pagado') return Response.json({ error: 'Este pedido ya no está pendiente de aprobación.' }, { status: 409 })
+        const note = typeof body.note === 'string' ? body.note.trim().slice(0, 300) : ''
+        const updated = await req.payload.update({
+          collection: 'orders',
+          id,
+          data: { status: 'aprobado', approval: { approvedBy: req.user!.id, approvedAt: new Date().toISOString(), approvalNote: note || undefined } } as never,
+          overrideAccess: true,
+          req,
+        })
+        return Response.json({ ok: true, status: updated.status })
+      },
+    },
+  ],
   hooks: {
     beforeValidate: [
       ({ data, operation }) => {
@@ -43,11 +70,21 @@ export const Orders: CollectionConfig = {
         }
         return data
       },
+      // Deja el teléfono en formato internacional (+595981123456) para que WhatsApp abra el chat sin errores
+      ({ data }) => {
+        const phone = (data as { customer?: { phone?: string } } | undefined)?.customer?.phone
+        const fixed = normalizePhone(phone)
+        if (data && phone && fixed && fixed !== phone) return { ...data, customer: { ...(data as { customer: object }).customer, phone: fixed } }
+        return data
+      },
     ],
     afterChange: [auditChange('orders')],
     afterDelete: [auditDelete('orders')],
   },
-  fields: lockFields(
+  fields: [
+    // Barra superior del pedido: contacto con el comprador y botón de aprobar
+    { name: 'actions', type: 'ui', admin: { components: { Field: '/components/admin/OrderActions#OrderActions' } } },
+    ...lockFields(
     [
       { name: 'orderNumber', type: 'text', label: 'Número de pedido', unique: true, admin: { readOnly: true, position: 'sidebar' } },
       {
@@ -91,6 +128,7 @@ export const Orders: CollectionConfig = {
         name: 'items',
         type: 'array',
         label: 'Productos del pedido',
+        admin: { initCollapsed: true, components: { Field: '/components/admin/OrderItemsField#OrderItemsField', RowLabel: '/components/admin/OrderItemRowLabel#OrderItemRowLabel' } },
         fields: [
           { name: 'product', type: 'relationship', relationTo: 'products', label: 'Producto' },
           { name: 'label', type: 'text', label: 'Detalle (producto y presentación)', required: true },
@@ -129,7 +167,19 @@ export const Orders: CollectionConfig = {
       },
       { name: 'notes', type: 'textarea', label: 'Observaciones del cliente' },
       { name: 'logisticsNote', type: 'textarea', label: 'Nota de envío (guía, courier, etc.)' },
+      {
+        name: 'approval',
+        type: 'group',
+        label: 'Aprobación del pedido',
+        admin: { description: 'Se completa sola cuando se usa el botón "Aprobar pedido".' },
+        fields: [
+          { name: 'approvedBy', type: 'relationship', relationTo: 'users', label: 'Aprobado por', admin: { readOnly: true } },
+          { name: 'approvedAt', type: 'date', label: 'Fecha y hora', admin: { readOnly: true, date: { pickerAppearance: 'dayAndTime' } } },
+          { name: 'approvalNote', type: 'textarea', label: 'Nota de la aprobación', admin: { readOnly: true } },
+        ],
+      },
     ],
     ['status', 'logisticsNote'],
   ),
+  ],
 }
