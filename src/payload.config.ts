@@ -34,7 +34,7 @@ const dirname = path.dirname(fileURLToPath(import.meta.url))
 const serverURL = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
 // Vercel + Neon puede cargar la base como DATABASE_URL o como POSTGRES_URL: se acepta cualquiera de las dos.
 const rawDatabaseUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL || 'file:./data/dev.db'
-if (process.env.VERCEL && rawDatabaseUrl.startsWith('file:')) {
+if (process.env.VERCEL && process.env.NEXT_PHASE !== 'phase-production-build' && rawDatabaseUrl.startsWith('file:')) {
   throw new Error('Falta la base de datos: en Vercel conecte un store de Neon (Storage) o defina DATABASE_URL con una dirección postgres://. Ver docs/DESPLIEGUE-VERCEL.md')
 }
 
