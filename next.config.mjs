@@ -11,13 +11,18 @@ const gaScript = ga ? ' https://www.googletagmanager.com' : ''
 const gaConnect = ga ? ' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com' : ''
 const gaImg = ga ? ' https://*.google-analytics.com https://*.googletagmanager.com' : ''
 
+// Si se configura otro proveedor de mapas (NEXT_PUBLIC_MAP_TILES), se permite su dominio
+let tilesHost = ''
+try { const u = process.env.NEXT_PUBLIC_MAP_TILES; if (u) tilesHost = ' ' + new URL(u.replace('{s}', 'a')).origin.replace('//a.', '//*.') } catch { /* URL inválida: se ignora */ }
+
 const csp = [
   "default-src 'self'",
-  `img-src 'self' data: blob: https://tile.openstreetmap.org${gaImg}`,
+  `img-src 'self' data: blob: https://*.public.blob.vercel-storage.com https://tile.openstreetmap.org https://*.basemaps.cartocdn.com${tilesHost}${gaImg}`,
   "font-src 'self' data:",
   "style-src 'self' 'unsafe-inline'",
   `script-src 'self' 'unsafe-inline'${gaScript}${isProd ? '' : " 'unsafe-eval'"}`,
   `connect-src 'self'${gaConnect}`,
+  "frame-src https://www.youtube-nocookie.com",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",

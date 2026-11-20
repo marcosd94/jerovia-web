@@ -12,6 +12,7 @@ import sharp from 'sharp'
 import { brandIcons } from './lib/icons'
 import { AuditLog } from './collections/AuditLog'
 import { Brands } from './collections/Brands'
+import { ProductLines } from './collections/ProductLines'
 import { Categories } from './collections/Categories'
 import { Certifications } from './collections/Certifications'
 import { Customers } from './collections/Customers'
@@ -24,6 +25,7 @@ import { Posts } from './collections/Posts'
 import { Products } from './collections/Products'
 import { StoreLocations } from './collections/StoreLocations'
 import { Users } from './collections/Users'
+import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import { HomeCarousel } from './globals/HomeCarousel'
 import { LinkPage } from './globals/LinkPage'
 import { SiteSettings } from './globals/SiteSettings'
@@ -50,13 +52,17 @@ const db = databaseUrl.startsWith('postgres')
   ? postgresAdapter({ pool: { connectionString: databaseUrl } })
   : sqliteAdapter({ client: { url: databaseUrl } })
 
+// Fotos subidas: en el notebook se guardan en la carpeta media/. En Vercel (sin disco persistente) se guardan en Vercel Blob:
+// se activa solo cuando existe BLOB_READ_WRITE_TOKEN (lo carga Vercel al conectar un store de Blob).
+const blobToken = process.env.BLOB_READ_WRITE_TOKEN?.trim()
+
 export default buildConfig({
   serverURL,
   secret: process.env.PAYLOAD_SECRET || 'solo-para-desarrollo-local-no-usar-en-produccion',
   admin: {
     user: Users.slug,
     avatar: 'default', // no pedir avatares a servicios externos (privacidad)
-    components: { beforeNavLinks: ['/components/admin/OrdersBadge#OrdersBadge'], views: { dashboard: { Component: '/components/admin/OrdersDashboard#OrdersDashboard' } }, logout: { Button: '/components/admin/AdminLogout#AdminLogout' }, graphics: { Logo: '/components/admin/AdminLogo#AdminLogo', Icon: '/components/admin/AdminIcon#AdminIcon' } },
+    components: { beforeNavLinks: ['/components/admin/AdminShortcuts#AdminShortcuts'], afterNavLinks: ['/components/admin/LogisticsNav#LogisticsNav'], views: { dashboard: { Component: '/components/admin/OrdersDashboard#OrdersDashboard' }, preparacion: { Component: '/components/admin/PreparationView#PreparationView', path: '/preparacion' } }, logout: { Button: '/components/admin/AdminLogout#AdminLogout' }, graphics: { Logo: '/components/admin/AdminLogo#AdminLogo', Icon: '/components/admin/AdminIcon#AdminIcon' } },
     meta: { titleSuffix: ' | Panel de administración', icons: brandIcons() as never },
     importMap: { baseDir: path.resolve(dirname) },
   },
@@ -70,7 +76,8 @@ export default buildConfig({
     defaultLocale: 'es',
     fallback: true,
   },
-  collections: [Users, Media, Categories, Brands, Products, Certifications, Pages, Posts, StoreLocations, Leads, DeliveryZones, Customers, Orders, AuditLog],
+  plugins: blobToken ? [vercelBlobStorage({ collections: { media: true }, token: blobToken })] : [],
+  collections: [Users, Media, Categories, Brands, ProductLines, Products, Certifications, Pages, Posts, StoreLocations, Leads, DeliveryZones, Customers, Orders, AuditLog],
   globals: [SiteSettings, HomeCarousel, LinkPage],
   // Correo (verificación de cuentas y recuperación de contraseña). Sin SMTP_HOST no se envían correos.
   email: process.env.SMTP_HOST

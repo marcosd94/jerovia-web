@@ -1,7 +1,7 @@
 import config from '@payload-config'
 import { getPayload } from 'payload'
 import type { Locale } from '@brand/types'
-import type { Category, Certification, HomeCarousel, LinkPage, Media, Page, Post, Product, SiteSetting, StoreLocation } from '../payload-types'
+import type { Category, Certification, HomeCarousel, LinkPage, Media, Page, Post, Product, ProductLine, SiteSetting, StoreLocation } from '../payload-types'
 
 // Lectura pública de contenido. overrideAccess:false hace que se apliquen las reglas de acceso:
 // una persona sin sesión solo ve lo publicado y lo marcado como visible.
@@ -28,11 +28,18 @@ export async function getCategories(locale: Locale): Promise<Category[]> {
   return res.docs
 }
 
-export async function getProducts(locale: Locale, opts: { categorySlug?: string; featured?: boolean; limit?: number; excludeId?: number } = {}): Promise<Product[]> {
+export async function getLines(locale: Locale): Promise<ProductLine[]> {
+  const payload = await getPayload({ config })
+  const res = await payload.find({ collection: 'product-lines', locale, sort: 'order', ...common })
+  return res.docs
+}
+
+export async function getProducts(locale: Locale, opts: { categorySlug?: string; lineSlug?: string; featured?: boolean; limit?: number; excludeId?: number } = {}): Promise<Product[]> {
   const payload = await getPayload({ config })
   const and: Record<string, unknown>[] = [{ _status: { equals: 'published' } }]
   if (opts.featured) and.push({ featured: { equals: true } })
   if (opts.categorySlug) and.push({ 'category.slug': { equals: opts.categorySlug } })
+  if (opts.lineSlug) and.push({ 'line.slug': { equals: opts.lineSlug } })
   if (opts.excludeId) and.push({ id: { not_equals: opts.excludeId } })
   const res = await payload.find({ collection: 'products', locale, where: { and } as never, sort: 'order', limit: opts.limit, ...common, pagination: false })
   return res.docs
@@ -80,7 +87,8 @@ export async function getStores(): Promise<StoreLocation[]> {
 export const asMedia = (value: unknown): Media | null => (value && typeof value === 'object' ? (value as Media) : null)
 
 /** Quita el dominio de la dirección de la imagen: así funciona igual en cualquier dominio (www, pruebas, producción) */
-const relative = (url: string): string => url.replace(/^https?:\/\/[^/]+/, '')
+// Las fotos en Vercel Blob son direcciones absolutas y se conservan; el resto se vuelve relativa al sitio.
+const relative = (url: string): string => (/^https:\/\/[^/]+\.blob\.vercel-storage\.com\//.test(url) ? url : url.replace(/^https?:\/\/[^/]+/, ''))
 
 export const mediaUrl = (value: unknown, size: 'thumb' | 'card' | 'hero' = 'card'): string | null => {
   const m = asMedia(value)
@@ -96,3 +104,11 @@ export const whatsappLink = (number: string | null | undefined, text: string): s
   number ? `https://wa.me/${number.replace(/\D/g, '')}?text=${encodeURIComponent(text)}` : null
 
 export const localePath = (locale: Locale, path = ''): string => `/${locale}${path}`
+
+/** Imagen de la biblioteca de medios por nombre de archivo (null si no existe) */
+export async function getMediaByFilename(filename?: string): Promise<Media | null> {
+  if (!filename) return null
+  const payload = await getPayload({ config })
+  const res = await payload.find({ collection: 'media', where: { filename: { equals: filename } }, limit: 1, depth: 0 })
+  return (res.docs[0] as Media | undefined) ?? null
+}
