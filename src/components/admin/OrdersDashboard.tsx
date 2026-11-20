@@ -5,6 +5,11 @@ import { addDays, computeStats, startOf, STATUS_FLOW, todayKey, type OrderRow } 
 
 const gs = (n: number) => `Gs. ${Math.round(n).toLocaleString('es-PY')}`
 const DATE = /^\d{4}-\d{2}-\d{2}$/
+const greet = (user: unknown) => {
+  const h = Number(new Intl.DateTimeFormat('es-PY', { hour: 'numeric', hour12: false, timeZone: 'America/Asuncion' }).format(new Date()))
+  const name = ((user as { name?: string } | null)?.name ?? '').split(' ')[0]
+  return `${h < 12 ? 'Buen día' : h < 19 ? 'Buenas tardes' : 'Buenas noches'}${name ? `, ${name}` : ''}`
+}
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? ''
 
 /** Panel de inicio del administrador: estadísticas de pedidos con filtros (se abre primero al entrar) */
@@ -78,8 +83,8 @@ export async function OrdersDashboard(props: AdminViewServerProps) {
     <Gutter>
       <div className="ord-dash">
         <header className="ord-head">
-          <h1>Panel de pedidos</h1>
-          <p>{all ? 'Todo el historial' : `Del ${desde.split('-').reverse().join('/')} al ${hasta.split('-').reverse().join('/')}`} · {stats.count} pedidos</p>
+          <h1>{greet(user)}</h1>
+          <p>Panel de pedidos · {all ? 'Todo el historial' : `Del ${desde.split('-').reverse().join('/')} al ${hasta.split('-').reverse().join('/')}`} · {stats.count} pedidos</p>
         </header>
 
         {stats.needsAction > 0 ? (
