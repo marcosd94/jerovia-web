@@ -44,6 +44,7 @@ export default async function CheckoutPage({ params }: Props) {
         customerName={customer?.name ?? null}
         defaults={defaults}
         accounts={brand.features.accounts}
+        minOrder={settings.minOrder ?? 100000}
       />
     </div>
   )

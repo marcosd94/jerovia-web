@@ -41,7 +41,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
   const pay = settings.payments
   const isTransfer = order.payment?.method === 'Transferencia o QR'
   const isPickup = order.delivery?.method === 'pickup'
-  const wa = brand.features.whatsapp ? whatsappLink(settings.whatsapp, ts(locale, 'whatsappOrder', { n: order.orderNumber ?? number })) : null
+  const wa = brand.features.whatsapp ? whatsappLink(pay?.receiptPhone || settings.whatsapp, ts(locale, 'whatsappOrder', { n: order.orderNumber ?? number })) : null
 
   return (
     <div className="wrap shop-page order-page">
@@ -59,6 +59,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
             <h3>{ts(locale, 'payTransferTitle')}</h3>
             {pay?.transferInstructions ? <p className="pre">{pay.transferInstructions}</p> : <p>{ts(locale, 'payNoData')}</p>}
             <p>{ts(locale, 'payTransferAfter')}</p>
+            {pay?.receiptPhone || settings.whatsapp ? <p><strong>{ts(locale, 'receiptTo')}</strong> +{String(pay?.receiptPhone || settings.whatsapp).replace(/\D/g, '')}</p> : null}
             {wa ? (
               <a className="btn btn-primary" href={wa} target="_blank" rel="noopener noreferrer">
                 {ts(locale, 'whatsappSend')}

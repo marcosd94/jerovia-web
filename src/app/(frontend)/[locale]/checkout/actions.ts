@@ -1,4 +1,5 @@
 'use server'
+import { normalizePhone } from '@/lib/phone'
 import config from '@payload-config'
 import { redirect } from 'next/navigation'
 import { getPayload } from 'payload'
@@ -18,7 +19,6 @@ export type CheckoutState = {
 }
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
-const PHONE = /^[+\d\s().-]{6,40}$/
 const clean = (v: FormDataEntryValue | null, max: number) => (typeof v === 'string' ? v.trim().slice(0, max) : '')
 const FIELDS = ['name', 'phone', 'email', 'ruc', 'businessName', 'delivery', 'zone', 'address', 'payment', 'notes']
 
@@ -33,7 +33,6 @@ export async function placeOrder(_prev: CheckoutState, fd: FormData): Promise<Ch
   const l = clean(fd.get('locale'), 5)
   const locale = isLocale(l) ? l : 'es'
   if (!brand.features.shop) return { status: 'error', message: 'errShopOff', values }
-  if (!allow(`order:${await clientIp()}`, 8, 30 * 60 * 1000)) return { status: 'error', message: 'errLimit', values }
 
   const payload = await getPayload({ config })
   const settings = await payload.findGlobal({ slug: 'site-settings', locale, overrideAccess: false })
@@ -51,11 +50,14 @@ export async function placeOrder(_prev: CheckoutState, fd: FormData): Promise<Ch
   const quote = await quoteLines('es', rawLines)
   if (!quote.items.length) return { status: 'error', message: 'errEmpty', values }
   if (!quote.allOk) return { status: 'error', message: 'errItems', values }
+  const minOrder = typeof settings.minOrder === 'number' ? settings.minOrder : 100000
+  if (quote.subtotal < minOrder) return { status: 'error', message: 'errMinOrder', values }
 
   const customer = await getCustomer()
   const errors: Record<string, ShopKey> = {}
   if (!values.name) errors.name = 'errRequired'
-  if (!PHONE.test(values.phone)) errors.phone = 'errPhone'
+  const phone = normalizePhone(values.phone)
+  if (!phone) errors.phone = 'errPhone'
   if (values.email && !EMAIL.test(values.email)) errors.email = 'errEmail'
   if (!customer && fd.get('privacy') !== 'on') errors.privacy = 'errPrivacy'
 
@@ -81,13 +83,16 @@ export async function placeOrder(_prev: CheckoutState, fd: FormData): Promise<Ch
 
   if (Object.keys(errors).length) return { status: 'error', errors, values }
 
+  // Límite contra abusos: solo cuenta los pedidos que pasaron todas las validaciones (los errores de carga no suman)
+  if (!allow(`order:${await clientIp()}`, 12, 30 * 60 * 1000)) return { status: 'error', message: 'errLimit', values }
+
   const total = quote.subtotal + shippingCost
   try {
     const order = await payload.create({
       collection: 'orders',
       data: {
         account: customer?.id,
-        customer: { name: values.name, email: values.email || customer?.email || undefined, phone: values.phone, ruc: values.ruc || undefined, businessName: values.businessName || undefined },
+        customer: { name: values.name, email: values.email || customer?.email || undefined, phone: phone as string, ruc: values.ruc || undefined, businessName: values.businessName || undefined },
         items: quote.items.map((i) => ({ product: i.p, label: i.label ? `${i.name} — ${i.label}` : i.name, sku: i.sku ?? undefined, quantity: i.q, unitPrice: i.unitPrice })),
         delivery: { method, zone: zoneId, address: method === 'courier' ? values.address : undefined },
         subtotal: quote.subtotal,

@@ -5,11 +5,12 @@ import { quoteCart } from '@/app/(frontend)/[locale]/carrito/actions'
 import type { Quote } from '@/lib/shop'
 import { useCart } from './CartProvider'
 import { QtyStepper } from './QtyStepper'
+import { TrashIcon } from './TrashIcon'
 
-type Props = { locale: string; m: Record<string, string>; base: string }
+type Props = { locale: string; m: Record<string, string>; base: string; minOrder: number }
 const gs = (n: number) => new Intl.NumberFormat('es-PY', { style: 'currency', currency: 'PYG', maximumFractionDigits: 0 }).format(n)
 
-export function CartView({ locale, m, base }: Props) {
+export function CartView({ locale, m, base, minOrder }: Props) {
   const cart = useCart()
   const [quote, setQuote] = useState<Quote | null>(null)
   const [failed, setFailed] = useState(false)
@@ -40,6 +41,8 @@ export function CartView({ locale, m, base }: Props) {
     )
   }
 
+  const missing = Math.max(0, minOrder - quote.subtotal)
+  const canCheckout = quote.allOk && missing === 0
   return (
     <div className="cart-layout">
       <ul className="cart-list">
@@ -53,7 +56,7 @@ export function CartView({ locale, m, base }: Props) {
             </div>
             <QtyStepper value={it.q} onChange={(n) => cart.setQty(it.p, n)} label={m.quantity} decrease={m.decrease} increase={m.increase} />
             <p className="cart-line-total">{it.ok ? gs(it.lineTotal) : ''}</p>
-            <button type="button" className="cart-remove" onClick={() => cart.remove(it.p)}>{m.remove}</button>
+            <button type="button" className="cart-remove" aria-label={m.remove} title={m.remove} onClick={() => cart.remove(it.p)}><TrashIcon /></button>
           </li>
         ))}
       </ul>
@@ -63,12 +66,15 @@ export function CartView({ locale, m, base }: Props) {
           <div><dt>{m.subtotal}</dt><dd>{gs(quote.subtotal)}</dd></div>
         </dl>
         <p className="muted">{m.shippingNext}</p>
-        {quote.allOk ? (
-          <Link className="btn btn-primary btn-block" href={`${base}/checkout`}>{m.checkout}</Link>
-        ) : (
-          <button type="button" className="btn btn-primary btn-block" disabled>{m.checkout}</button>
-        )}
-        <Link className="btn btn-ghost btn-block" href={`${base}/productos`}>{m.continueShopping}</Link>
+        {missing > 0 ? <p className="notice-min" role="status">{m.minOrderMsg.replace('{min}', gs(minOrder)).replace('{missing}', gs(missing))}</p> : null}
+        <div className="btn-row">
+          {canCheckout ? (
+            <Link className="btn btn-primary" href={`${base}/checkout`}>{m.checkout}</Link>
+          ) : (
+            <button type="button" className="btn btn-primary" disabled>{m.checkout}</button>
+          )}
+          <Link className="btn btn-ghost" href={`${base}/productos`}>{m.continueShopping}</Link>
+        </div>
         <p className="muted small">{m.freeNote}</p>
       </aside>
     </div>

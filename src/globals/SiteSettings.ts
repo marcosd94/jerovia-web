@@ -35,6 +35,14 @@ export const SiteSettings: GlobalConfig = {
       ],
     },
     {
+      name: 'minOrder',
+      type: 'number',
+      label: 'Compra mínima de la tienda (Gs.)',
+      defaultValue: 100000,
+      min: 0,
+      admin: { description: 'Monto mínimo de productos para poder confirmar un pedido (sin contar el envío). 0 = sin mínimo.', step: 1000 },
+    },
+    {
       name: 'payments',
       type: 'group',
       label: 'Formas de pago de la tienda',
@@ -47,6 +55,12 @@ export const SiteSettings: GlobalConfig = {
           label: 'Datos para transferir (banco, cuenta, titular, alias o QR)',
           localized: true,
           admin: { description: 'El cliente los ve al confirmar el pedido. Pedile que envíe el comprobante por WhatsApp.' },
+        },
+        {
+          name: 'receiptPhone',
+          type: 'text',
+          label: 'Teléfono (WhatsApp) para recibir comprobantes',
+          admin: { description: 'Solo números, con código de país. Ejemplo: 595981123456. El cliente lo ve al confirmar un pedido por transferencia y desde ahí puede enviar el comprobante. Si queda vacío se usa el WhatsApp de contacto.' },
         },
         { name: 'cashEnabled', type: 'checkbox', label: 'Aceptar pago contra entrega o al retirar', defaultValue: true },
       ],

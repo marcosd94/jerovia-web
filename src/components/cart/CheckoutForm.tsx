@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { useActionState, useEffect, useMemo, useState } from 'react'
 import { quoteCart } from '@/app/(frontend)/[locale]/carrito/actions'
 import { placeOrder, type CheckoutState } from '@/app/(frontend)/[locale]/checkout/actions'
+import { PhoneField } from '@/components/PhoneField'
 import type { Quote, ShopZone } from '@/lib/shop'
 import { useCart } from './CartProvider'
 
@@ -17,12 +18,13 @@ type Props = {
   customerName: string | null
   defaults: Defaults
   accounts: boolean
+  minOrder: number
 }
 
 const initial: CheckoutState = { status: 'idle' }
 const gs = (n: number) => new Intl.NumberFormat('es-PY', { style: 'currency', currency: 'PYG', maximumFractionDigits: 0 }).format(n)
 
-export function CheckoutForm({ locale, base, m, zones, pickup, pay, customerName, defaults, accounts }: Props) {
+export function CheckoutForm({ locale, base, m, zones, pickup, pay, customerName, defaults, accounts, minOrder }: Props) {
   const cart = useCart()
   const [state, action, pending] = useActionState(placeOrder, initial)
   const [mode, setMode] = useState<'guest' | null>(customerName ? 'guest' : null)
@@ -56,6 +58,8 @@ export function CheckoutForm({ locale, base, m, zones, pickup, pay, customerName
   const selZone = zones.find((z) => String(z.id) === zone)
   const shipping = delivery === 'pickup' ? 0 : selZone?.price ?? null
   const subtotal = quote?.subtotal ?? 0
+  const missing = Math.max(0, minOrder - subtotal)
+  const minText = m.minOrderMsg.replace('{min}', gs(minOrder)).replace('{missing}', gs(missing))
   const showForm = Boolean(customerName) || mode === 'guest'
 
   return (
@@ -88,16 +92,16 @@ export function CheckoutForm({ locale, base, m, zones, pickup, pay, customerName
         )}
 
         {showForm ? (
-          <form className="form checkout-form" action={action} noValidate>
+          <form id="checkout-form" className="form checkout-form" action={action} noValidate>
             <input type="hidden" name="locale" value={locale} />
             <input type="hidden" name="cart" value={lines} />
             <div className="hp" aria-hidden="true"><label>Web<input name="website" tabIndex={-1} autoComplete="off" /></label></div>
-            {state.message ? <p className="form-error" role="alert">{m[state.message]}</p> : null}
+            {state.message ? <p className="form-error" role="alert">{state.message === 'errMinOrder' ? minText : m[state.message]}</p> : null}
 
             <fieldset className="checkout-block">
               <legend>{m.yourData}</legend>
               <div className="field"><label htmlFor="name">{m.name}</label><input id="name" name="name" autoComplete="name" defaultValue={v.name ?? defaults.name} required />{err('name')}</div>
-              <div className="field"><label htmlFor="phone">{m.phone}</label><input id="phone" name="phone" type="tel" autoComplete="tel" defaultValue={v.phone ?? defaults.phone} required />{err('phone')}</div>
+              <PhoneField label={m.phone} locale={locale as 'es' | 'en' | 'pt'} defaultValue={v.phone ?? defaults.phone} required error={state.errors?.phone ? m[state.errors.phone] : null} />
               <div className="field"><label htmlFor="email">{m.email}</label><input id="email" name="email" type="email" autoComplete="email" defaultValue={v.email ?? defaults.email} aria-describedby="email-h" /><p id="email-h" className="small">{m.emailHint}</p>{err('email')}</div>
               <details className="invoice">
                 <summary>{m.invoiceData}</summary>
@@ -156,7 +160,6 @@ export function CheckoutForm({ locale, base, m, zones, pickup, pay, customerName
               </div>
             ) : null}
 
-            <button type="submit" className="btn btn-primary btn-block" disabled={pending}>{pending ? m.placing : m.placeOrder}</button>
           </form>
         ) : null}
       </div>
@@ -174,7 +177,12 @@ export function CheckoutForm({ locale, base, m, zones, pickup, pay, customerName
           <div className="row-total"><dt>{m.total}</dt><dd>{shipping === null ? gs(subtotal) : gs(subtotal + shipping)}</dd></div>
         </dl>
         {shipping === null ? <p className="muted small">{m.shippingZoneFirst}</p> : null}
-        <Link className="btn btn-ghost btn-block" href={`${base}/carrito`}>{m.cart}</Link>
+        {missing > 0 ? <p className="notice-min" role="status">{minText}</p> : null}
+        <div className="btn-row">
+          <button type="submit" form="checkout-form" className="btn btn-primary" disabled={pending || !showForm || !quote || missing > 0}>{pending ? m.placing : m.placeOrder}</button>
+          <Link className="btn btn-ghost" href={`${base}/carrito`}>{m.cart}</Link>
+        </div>
+        {!showForm ? <p className="muted small">{m.fillDataFirst}</p> : null}
         <p className="muted small">{m.freeNote}</p>
       </aside>
     </div>

@@ -72,6 +72,7 @@ export interface Config {
     media: Media;
     categories: Category;
     brands: Brand;
+    'product-lines': ProductLine;
     products: Product;
     certifications: Certification;
     pages: Page;
@@ -93,6 +94,7 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     brands: BrandsSelect<false> | BrandsSelect<true>;
+    'product-lines': ProductLinesSelect<false> | ProductLinesSelect<true>;
     products: ProductsSelect<false> | ProductsSelect<true>;
     certifications: CertificationsSelect<false> | CertificationsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
@@ -282,6 +284,28 @@ export interface Brand {
   createdAt: string;
 }
 /**
+ * Familias dentro de una marca. Ejemplo: la marca Jerovia tiene las líneas Orgánico y Natural.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-lines".
+ */
+export interface ProductLine {
+  id: number;
+  /**
+   * Solo el nombre de la línea, sin repetir la marca. Ejemplo: Orgánico.
+   */
+  name: string;
+  slug: string;
+  brand: number | Brand;
+  /**
+   * Número menor = aparece primero.
+   */
+  order?: number | null;
+  description?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "products".
  */
@@ -293,7 +317,14 @@ export interface Product {
    */
   slug: string;
   category: number | Category;
+  /**
+   * La marca comercial. Ejemplo: Jerovia.
+   */
   brand?: (number | null) | Brand;
+  /**
+   * Familia dentro de la marca. Ejemplo: Orgánico o Natural. Solo se ofrecen las líneas de la marca elegida.
+   */
+  line?: (number | null) | ProductLine;
   featured?: boolean | null;
   /**
    * Número menor = aparece primero.
@@ -607,6 +638,14 @@ export interface Order {
   };
   notes?: string | null;
   logisticsNote?: string | null;
+  /**
+   * Se completa sola cuando se usa el botón "Aprobar pedido".
+   */
+  approval?: {
+    approvedBy?: (number | null) | User;
+    approvedAt?: string | null;
+    approvalNote?: string | null;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -663,6 +702,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'brands';
         value: number | Brand;
+      } | null)
+    | ({
+        relationTo: 'product-lines';
+        value: number | ProductLine;
       } | null)
     | ({
         relationTo: 'products';
@@ -861,6 +904,19 @@ export interface BrandsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-lines_select".
+ */
+export interface ProductLinesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  brand?: T;
+  order?: T;
+  description?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "products_select".
  */
 export interface ProductsSelect<T extends boolean = true> {
@@ -868,6 +924,7 @@ export interface ProductsSelect<T extends boolean = true> {
   slug?: T;
   category?: T;
   brand?: T;
+  line?: T;
   featured?: T;
   order?: T;
   summary?: T;
@@ -1096,6 +1153,13 @@ export interface OrdersSelect<T extends boolean = true> {
       };
   notes?: T;
   logisticsNote?: T;
+  approval?:
+    | T
+    | {
+        approvedBy?: T;
+        approvedAt?: T;
+        approvalNote?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1175,6 +1239,10 @@ export interface SiteSetting {
     address?: string | null;
   };
   /**
+   * Monto mínimo de productos para poder confirmar un pedido (sin contar el envío). 0 = sin mínimo.
+   */
+  minOrder?: number | null;
+  /**
    * Cobro manual mientras no haya pasarela de pagos. Estos datos se muestran al cliente al confirmar el pedido.
    */
   payments?: {
@@ -1183,6 +1251,10 @@ export interface SiteSetting {
      * El cliente los ve al confirmar el pedido. Pedile que envíe el comprobante por WhatsApp.
      */
     transferInstructions?: string | null;
+    /**
+     * Solo números, con código de país. Ejemplo: 595981123456. El cliente lo ve al confirmar un pedido por transferencia y desde ahí puede enviar el comprobante. Si queda vacío se usa el WhatsApp de contacto.
+     */
+    receiptPhone?: string | null;
     cashEnabled?: boolean | null;
   };
   social?:
@@ -1305,11 +1377,13 @@ export interface SiteSettingsSelect<T extends boolean = true> {
         enabled?: T;
         address?: T;
       };
+  minOrder?: T;
   payments?:
     | T
     | {
         transferEnabled?: T;
         transferInstructions?: T;
+        receiptPhone?: T;
         cashEnabled?: T;
       };
   social?:
