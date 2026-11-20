@@ -1,4 +1,5 @@
 'use client'
+import { PhoneField } from '@/components/PhoneField'
 import Link from 'next/link'
 import { useActionState } from 'react'
 import type { Locale } from '@brand/types'
@@ -123,7 +124,7 @@ export function RegisterForm({ locale, next }: { locale: Locale; next?: 'checkou
       <Notice state={state} locale={locale} />
       <Field id="name" label={ta(locale, 'name')} autoComplete="name" required state={state} locale={locale} />
       <Field id="email" label={ta(locale, 'email')} type="email" autoComplete="email" required state={state} locale={locale} />
-      <Field id="phone" label={ta(locale, 'phone')} type="tel" autoComplete="tel" required state={state} locale={locale} />
+      <PhoneField label={ta(locale, 'phone')} locale={locale} defaultValue={state.values?.phone} required error={state.errors?.phone ? ta(locale, state.errors.phone) : null} />
       <Field id="password" label={ta(locale, 'password')} type="password" autoComplete="new-password" required hint={ta(locale, 'passwordHint')} state={state} locale={locale} />
       <div className="field">
         <label>
@@ -188,7 +189,7 @@ export function ProfileForm({ locale, d }: { locale: Locale; d: ProfileDefaults 
     <form className="form" action={action} noValidate>
       <Notice state={state} locale={locale} />
       <Field id="name" label={ta(locale, 'name')} autoComplete="name" required state={s} locale={locale} />
-      <Field id="phone" label={ta(locale, 'phone')} type="tel" autoComplete="tel" required state={s} locale={locale} />
+      <PhoneField label={ta(locale, 'phone')} locale={locale} defaultValue={s.values?.phone ?? d.phone} required error={s.errors?.phone ? ta(locale, s.errors.phone) : null} />
       <div className="field">
         <label htmlFor="preferredLocale">{ta(locale, 'language')}</label>
         <select id="preferredLocale" name="preferredLocale" defaultValue={d.preferredLocale}>

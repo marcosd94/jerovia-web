@@ -1,4 +1,5 @@
 'use server'
+import { normalizePhone } from '@/lib/phone'
 import config from '@payload-config'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
@@ -42,7 +43,8 @@ export async function registerAccount(_p: AcctState, fd: FormData): Promise<Acct
   const password = String(fd.get('password') ?? '')
   const errors: Record<string, AccountKey> = {}
   if (!values.name) errors.name = 'errRequired'
-  if (!values.phone || !/^[+\d\s().-]{6,40}$/.test(values.phone)) errors.phone = 'errRequired'
+  const phoneOk = normalizePhone(values.phone)
+  if (!phoneOk) errors.phone = 'errPhone'
   if (!values.email || !EMAIL.test(values.email)) errors.email = 'errEmail'
   if (password.length < MIN_PASSWORD) errors.password = 'errPassword'
   if (fd.get('privacy') !== 'on') errors.privacy = 'errPrivacy'
@@ -59,7 +61,7 @@ export async function registerAccount(_p: AcctState, fd: FormData): Promise<Acct
         email: values.email.toLowerCase(),
         password,
         name: values.name,
-        phone: values.phone,
+        phone: phoneOk as string,
         preferredLocale: locale,
         privacyAcceptedAt: now,
         marketingOptIn: marketing,
@@ -145,7 +147,8 @@ export async function updateProfile(_p: AcctState, fd: FormData): Promise<AcctSt
   const phone = clean(fd.get('phone'), 40)
   const errors: Record<string, AccountKey> = {}
   if (!name) errors.name = 'errRequired'
-  if (!phone || !/^[+\d\s().-]{6,40}$/.test(phone)) errors.phone = 'errRequired'
+  const phoneOk = normalizePhone(phone)
+  if (!phoneOk) errors.phone = 'errPhone'
   if (Object.keys(errors).length) return { status: 'error', errors }
 
   const docTypeRaw = clean(fd.get('documentType'), 10)
@@ -159,7 +162,7 @@ export async function updateProfile(_p: AcctState, fd: FormData): Promise<AcctSt
       id: me.id,
       data: {
         name,
-        phone,
+        phone: phoneOk as string,
         billing: { documentType, documentNumber: clean(fd.get('documentNumber'), 30), businessName: clean(fd.get('businessName'), 160) },
         preferredLocale: isLocale(prefRaw) ? prefRaw : 'es',
         marketingOptIn: marketing,

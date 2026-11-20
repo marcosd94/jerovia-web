@@ -5,6 +5,8 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
 export type MapPoint = { id: string | number; name: string; region: string; lat: number; lng: number; address?: string; phone?: string }
+const TILES = process.env.NEXT_PUBLIC_MAP_TILES || 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
+const ATTRIBUTION = process.env.NEXT_PUBLIC_MAP_TILES ? '' : ' &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener noreferrer">CARTO</a>'
 type Views = { key: string; label: string }[]
 
 /** Mapa con OpenStreetMap. Se arma solo en el navegador; los textos se insertan como texto (nunca como HTML). */
@@ -27,9 +29,12 @@ export default function StoresMap({ points, label, directionsLabel, views }: { p
     if (!ref.current || points.length === 0) return
     const map = L.map(ref.current, { scrollWheelZoom: false })
     mapRef.current = map
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    // Proveedor de mapas configurable (NEXT_PUBLIC_MAP_TILES). El servidor público de OpenStreetMap bloquea
+    // el uso desde sitios sin dominio propio o con mucho tráfico; por eso el valor por defecto es CARTO.
+    L.tileLayer(TILES, {
       maxZoom: 19,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>',
+      subdomains: 'abcd',
+      attribution: `&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>${ATTRIBUTION}`,
     }).addTo(map)
 
     const icon = L.divIcon({ className: 'map-pin', html: '<span></span>', iconSize: [28, 34], iconAnchor: [14, 34], popupAnchor: [0, -30] })
