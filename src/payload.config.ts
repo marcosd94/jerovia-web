@@ -32,7 +32,11 @@ import { SiteSettings } from './globals/SiteSettings'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 const serverURL = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
-const rawDatabaseUrl = process.env.DATABASE_URL || 'file:./data/dev.db'
+// Vercel + Neon puede cargar la base como DATABASE_URL o como POSTGRES_URL: se acepta cualquiera de las dos.
+const rawDatabaseUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL || 'file:./data/dev.db'
+if (process.env.VERCEL && rawDatabaseUrl.startsWith('file:')) {
+  throw new Error('Falta la base de datos: en Vercel conecte un store de Neon (Storage) o defina DATABASE_URL con una dirección postgres://. Ver docs/DESPLIEGUE-VERCEL.md')
+}
 
 if (process.env.NODE_ENV === 'production' && (!process.env.PAYLOAD_SECRET || process.env.PAYLOAD_SECRET.length < 32)) {
   throw new Error('Falta PAYLOAD_SECRET (mínimo 32 caracteres). Ver .env.example')
