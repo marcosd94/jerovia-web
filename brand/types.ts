@@ -57,6 +57,24 @@ export type BrandCopy = {
   storesPage: { title: L10n; intro: L10n }
   productsPage: { title: L10n; intro: L10n }
   certificationsPage: { title: L10n; intro: L10n }
+  /** Página "Nosotros" con diseño propio (opcional: si falta, se usa la página institucional del panel) */
+  aboutPage?: {
+    title: L10n
+    mission: { kicker: L10n; title: L10n; text: L10n[] }
+    pillars: { title: L10n; text: L10n }[]
+    pillarsTitle: L10n
+    community: { title: L10n; text: L10n; cta: L10n; /** Archivo de la imagen (en la biblioteca de medios) que acompaña el texto, ej. un logo */ image?: string }
+    productTitle: L10n
+    product: { title: L10n; text: L10n }[]
+    packagingTitle: L10n
+    packagingIntro: L10n
+    packaging: { title: L10n; text: L10n }[]
+    certsTitle: L10n
+    /** Videos institucionales (id de YouTube por idioma) */
+    videos?: { title: L10n; items: { label: L10n; youtubeId: string }[] }
+    contactTitle: L10n
+    cta: L10n
+  }
   blogPage: { title: L10n; intro: L10n }
 }
 
@@ -74,12 +92,15 @@ export type SeedData = {
   media: { key: string; file: string; alt: L10n }[]
   categories: { slug: string; name: L10n; description?: L10n; tone: 'tone1' | 'tone2' | 'tone3' | 'tone4'; order: number }[]
   brands: { slug: string; name: L10n; description?: L10n; logo?: string }[]
+  /** Líneas dentro de una marca (ej.: Jerovia → Orgánico, Natural). La categoría es otra cosa: el tipo de producto. */
+  lines?: { slug: string; brand: string; name: L10n; description?: L10n; order: number }[]
   certifications: { slug: string; name: L10n; description: L10n; logo?: string; footer?: boolean; order: number }[]
   products: {
     slug: string
     name: L10n
     category: string
     brand: string
+    line?: string
     summary: L10n
     paragraphs: L10n[]
     image?: string
