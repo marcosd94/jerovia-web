@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { siteUrl } from '@/lib/site-url'
 import { brandIcons } from '@/lib/icons'
 import { notFound } from 'next/navigation'
 import { brand } from '@brand'
@@ -19,7 +20,7 @@ export async function generateMetadata({ params }: Pick<Props, 'params'>): Promi
   const { locale } = await params
   const l = isLocale(locale) ? locale : brand.defaultLocale
   return {
-    metadataBase: new URL(process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'),
+    metadataBase: new URL(siteUrl),
     title: { default: brand.name, template: brand.seo.titleTemplate },
     description: pick(brand.seo.description, l),
     icons: brandIcons(),

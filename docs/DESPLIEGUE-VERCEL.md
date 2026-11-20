@@ -19,7 +19,7 @@ El código elige solo: si `DATABASE_URL` empieza con `postgres` usa PostgreSQL; 
 4. **Fotos:** *Storage* → *Create* → **Blob** → conectar al proyecto. Vercel carga `BLOB_READ_WRITE_TOKEN`. El store debe ser **público**.
 5. **Variables** (*Settings → Environment Variables*):
    - `PAYLOAD_SECRET`: clave de 32+ caracteres. Generala con `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`.
-   - `NEXT_PUBLIC_SERVER_URL`: la dirección del despliegue, sin barra final (ej. `https://jerovia-web.vercel.app`). Si todavía no la sabés, desplegá una vez, copiala y volvé a desplegar.
+   - `NEXT_PUBLIC_SERVER_URL`: **opcional en Vercel**. Si no se define, el sitio usa la dirección estable del proyecto que Vercel informa (`VERCEL_PROJECT_PRODUCTION_URL`) y, en las vistas previas, la del despliegue. Definila solo cuando tengas un dominio propio (ej. `https://www.jeroviapy.com.py`, sin barra final). No uses la dirección de un despliegue puntual: cambia en cada uno.
    - `NEXT_PUBLIC_DEFAULT_LOCALE=es`
    - Opcionales: ver `.env.example` (SMTP, Google Analytics).
 6. **Desplegar:** *Deploy*. Cada rama o *pull request* genera además una URL de vista previa.

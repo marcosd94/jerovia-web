@@ -1,8 +1,9 @@
 import type { CollectionConfig } from 'payload'
+import { siteUrl } from '../lib/site-url'
 import { fieldAdminOrGestor, hasRole, isAdmin, isCustomer, visibleTo } from '../access'
 import { auditChange, auditDelete } from '../lib/audit'
 
-const serverURL = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
+const serverURL = siteUrl
 // Con un servicio de correo configurado (SMTP_HOST) se exige verificar el correo; sin él (desarrollo) las cuentas quedan activas al crearse.
 const emailEnabled = Boolean(process.env.SMTP_HOST)
 

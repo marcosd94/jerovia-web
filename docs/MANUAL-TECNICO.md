@@ -239,3 +239,4 @@ Cuando un cambio agrega una relación a una tabla existente, el modo automático
 - Pedidos: `items` usa `initCollapsed` y `RowLabel` (`OrderItemRowLabel`).
 
 - Fotos en Vercel: `@payloadcms/storage-vercel-blob` se activa solo con `BLOB_READ_WRITE_TOKEN` (`payload.config.ts`); `mediaUrl` conserva las direcciones absolutas de Blob y la CSP permite `*.public.blob.vercel-storage.com`. Ver `docs/DESPLIEGUE-VERCEL.md`.
+- Dirección pública: `src/lib/site-url.ts` (`siteUrl`): `NEXT_PUBLIC_SERVER_URL` si existe; si no, en Vercel `VERCEL_PROJECT_PRODUCTION_URL` (producción) o `VERCEL_URL` (vistas previas); si no, localhost.

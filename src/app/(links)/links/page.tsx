@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { siteUrl } from '@/lib/site-url'
 import { notFound } from 'next/navigation'
 import { brand } from '@brand'
 import { Analytics } from '@/components/Analytics'
@@ -13,7 +14,7 @@ const locale = brand.defaultLocale
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    metadataBase: new URL(process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'),
+    metadataBase: new URL(siteUrl),
     title: `${brand.name} — ${t(locale, 'linksTitle')}`,
     description: brand.seo.description[locale] ?? brand.seo.description.es,
   }

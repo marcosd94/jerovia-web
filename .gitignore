@@ -18,3 +18,8 @@ Thumbs.db
 *.tsbuildinfo
 next-env.d.ts
 public/brand/
+
+.vercel
+.env*
+docs/quitar-trailers.ps1
+docs/quitar-trailers-filtro.sh

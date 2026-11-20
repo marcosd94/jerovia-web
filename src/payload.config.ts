@@ -1,4 +1,5 @@
 import { mkdirSync } from 'node:fs'
+import { siteUrl } from './lib/site-url'
 import path from 'path'
 import { fileURLToPath, pathToFileURL } from 'url'
 import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
@@ -31,7 +32,7 @@ import { LinkPage } from './globals/LinkPage'
 import { SiteSettings } from './globals/SiteSettings'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
-const serverURL = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
+const serverURL = siteUrl
 // Vercel + Neon puede cargar la base como DATABASE_URL o como POSTGRES_URL: se acepta cualquiera de las dos.
 const rawDatabaseUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL || 'file:./data/dev.db'
 if (process.env.VERCEL && process.env.NEXT_PHASE !== 'phase-production-build' && rawDatabaseUrl.startsWith('file:')) {
