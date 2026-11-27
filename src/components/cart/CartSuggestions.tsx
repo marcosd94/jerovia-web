@@ -1,6 +1,7 @@
 'use client'
 import Link from 'next/link'
 import type { Suggestion } from '@/lib/shop'
+import { LeafMark } from '../LeafMark'
 import { useCart } from './CartProvider'
 
 const gs = (n: number) => new Intl.NumberFormat('es-PY', { style: 'currency', currency: 'PYG', maximumFractionDigits: 0 }).format(n)
@@ -18,7 +19,7 @@ export function CartSuggestions({ items, base, m }: { items: Suggestion[]; base:
         {list.map((s) => (
           <li key={s.id} className="suggest-item">
             <Link href={`${base}/productos/${s.slug}`} className="suggest-link">
-              <span className="suggest-thumb">{s.image ? <img src={s.image} alt="" loading="lazy" /> : null}</span>
+              <span className="suggest-thumb">{s.image ? <img src={s.image} alt="" loading="lazy" /> : <LeafMark className="cart-thumb-ph" />}</span>
               <span className="suggest-text">
                 <span className="suggest-name">{s.name}</span>
                 <span className="suggest-meta">{[s.label, gs(s.price)].filter(Boolean).join(' · ')}</span>

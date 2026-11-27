@@ -1,15 +1,16 @@
 import type { CollectionConfig } from 'payload'
-import { isAdmin, isAdminOrGestor, publishedOrStaff, visibleTo } from '../access'
+import { isAdminOrGestor, publishedOrStaff, visibleTo, softDeleteOnly } from '../access'
 import { auditChange, auditDelete } from '../lib/audit'
 import { slugFrom } from '../lib/slug'
 
 export const Products: CollectionConfig = {
   slug: 'products',
+  trash: true, // eliminación lógica: los registros van a la papelera, nunca se pierden
   labels: { singular: 'Producto', plural: 'Productos' },
   admin: { useAsTitle: 'name', group: 'Catálogo', defaultColumns: ['name', 'presentation', 'price', 'category', '_status'], hidden: visibleTo('admin', 'gestor', 'visor') },
   defaultSort: 'order',
   versions: { drafts: true, maxPerDoc: 20 },
-  access: { read: publishedOrStaff, create: isAdminOrGestor, update: isAdminOrGestor, delete: isAdmin },
+  access: { read: publishedOrStaff, create: isAdminOrGestor, update: isAdminOrGestor, delete: softDeleteOnly },
   hooks: { afterChange: [auditChange('products')], afterDelete: [auditDelete('products')] },
   fields: [
     { name: 'name', type: 'text', label: 'Nombre', localized: true, required: true },

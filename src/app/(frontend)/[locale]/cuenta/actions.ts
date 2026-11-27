@@ -257,7 +257,13 @@ export async function deleteAccount(_p: AcctState, fd: FormData): Promise<AcctSt
     const payload = await getP()
     // Los pedidos se conservan como registro de la tienda, ya sin vínculo con la cuenta
     await payload.update({ collection: 'orders', where: { account: { equals: me.id } }, data: { account: null }, overrideAccess: true })
-    await payload.delete({ collection: 'customers', id: me.id, overrideAccess: true })
+    // Eliminación lógica: la cuenta va a la papelera y el correo original se conserva aparte (queda libre para volver a registrarse)
+    await payload.update({
+      collection: 'customers',
+      id: me.id,
+      data: { deletedAt: new Date().toISOString(), emailAnterior: me.email, email: `eliminada+${me.id}@cuenta.invalid` } as never,
+      overrideAccess: true,
+    })
   } catch (error) {
     console.error('deleteAccount', errName(error))
     return { status: 'error', message: 'errGeneric' }

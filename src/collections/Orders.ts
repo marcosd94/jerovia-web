@@ -1,6 +1,6 @@
 import { randomBytes } from 'node:crypto'
 import type { CollectionConfig, Field, Where } from 'payload'
-import { fieldAdminOrGestor, fieldBackoffice, fieldBackofficeOrCustomer, hasRole, isAdmin, isCustomer, visibleTo } from '../access'
+import { fieldAdminOrGestor, fieldBackoffice, fieldBackofficeOrCustomer, hasRole, isCustomer, visibleTo, softDeleteOnly } from '../access'
 import { auditChange, auditDelete } from '../lib/audit'
 import { normalizePhone } from '../lib/phone'
 
@@ -18,8 +18,9 @@ const lockFields = (fields: Field[], editable: string[]): Field[] =>
 
 export const Orders: CollectionConfig = {
   slug: 'orders',
+  trash: true, // eliminación lógica: los registros van a la papelera, nunca se pierden
   labels: { singular: 'Pedido', plural: 'Pedidos' },
-  admin: { useAsTitle: 'orderNumber', group: 'Ventas', defaultColumns: ['orderNumber', 'status', 'total', 'createdAt'], hidden: visibleTo('admin', 'gestor', 'visor', 'logistica') },
+  admin: { useAsTitle: 'orderNumber', group: 'Ventas', components: { beforeList: ['/components/admin/OrdersListFilter#OrdersListFilter'] }, defaultColumns: ['orderNumber', 'status', 'total', 'createdAt'], hidden: visibleTo('admin', 'gestor', 'visor', 'logistica') },
   defaultSort: '-createdAt',
   access: {
     read: ({ req: { user } }): boolean | Where => {
@@ -30,7 +31,7 @@ export const Orders: CollectionConfig = {
     },
     create: ({ req: { user } }) => hasRole(user, 'admin', 'gestor'),
     update: ({ req: { user } }) => hasRole(user, 'admin', 'gestor', 'logistica'),
-    delete: isAdmin,
+    delete: softDeleteOnly,
   },
   endpoints: [
     {
@@ -130,7 +131,8 @@ export const Orders: CollectionConfig = {
         label: 'Productos del pedido',
         admin: { initCollapsed: true, components: { Field: '/components/admin/OrderItemsField#OrderItemsField', RowLabel: '/components/admin/OrderItemRowLabel#OrderItemRowLabel' } },
         fields: [
-          { name: 'product', type: 'relationship', relationTo: 'products', label: 'Producto' },
+          { name: 'product', type: 'relationship', relationTo: 'products', label: 'Producto', admin: { description: 'Al elegirlo se completan solos el detalle, el código y el precio.' } },
+          { name: 'autofill', type: 'ui', admin: { components: { Field: '/components/admin/OrderItemAutofill#OrderItemAutofill' } } },
           { name: 'label', type: 'text', label: 'Detalle (producto y presentación)', required: true },
           { name: 'sku', type: 'text', label: 'Código' },
           { name: 'quantity', type: 'number', label: 'Cantidad', required: true, min: 1, defaultValue: 1 },

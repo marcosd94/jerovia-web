@@ -8,13 +8,19 @@ Estado: **carrito, checkout y confirmación implementados con cobro manual** (si
 2. **Checkout** (`/checkout`), tres opciones: *Ingresar* y *Crear cuenta* (llevan a `/cuenta/...?next=checkout` y vuelven; el carrito se conserva) o *Comprar sin cuenta*. Con sesión iniciada el formulario viene prellenado.
 3. **Entrega:** envío por zona (costo desde *Zonas de entrega*) o retiro en el local.
 4. **Pago manual:** transferencia/QR o contra entrega / al retirar (se activan en *Configuración del sitio*).
-5. **Pedido:** la Server Action `placeOrder` recalcula todo (precios, envío, total, disponibilidad), valida, limita intentos por IP y crea el pedido con permiso de servidor, en estado `pendiente_pago`, `payment.gateway = manual`. Los ítems se guardan en español.
+5. **Pedido:** la Server Action `placeOrder` recalcula todo (precios, envío, total, disponibilidad), valida, exige la **compra mínima** (*Configuración del sitio*, por defecto Gs. 100.000), limita intentos por IP y crea el pedido con permiso de servidor, en estado `pendiente_pago`, `payment.gateway = manual`. Los ítems se guardan en español.
 6. **Confirmación** (`/pedido/<número>?t=<código>`): acceso solo con el código secreto del enlace o desde la cuenta dueña. Muestra cómo pagar y ofrece crear cuenta a quien compró sin ella. Vacía el carrito.
 
 ## Seguridad
 - Ningún precio viene del navegador; ni datos de tarjeta pasan por el servidor.
-- Campo trampa anti-robots, límite de 8 pedidos por IP cada 30 min, carrito acotado (40 líneas, 99 por línea).
+- Campo trampa anti-robots, límite de 12 pedidos por IP cada 30 min (se cuenta al crear el pedido, no en cada validación), carrito acotado (40 líneas, 99 por línea).
 - La página del pedido no se indexa y no envía referencia a otros sitios.
+
+## Detalles de la última ronda
+- **Compra mínima** configurable; bajo el mínimo el carrito muestra cuánto falta y no deja confirmar (también se valida en el servidor).
+- **Teléfono para recibir comprobantes** (*Configuración del sitio → Pagos*): lo usa el enlace de WhatsApp de la página del pedido; si está vacío, se usa el WhatsApp general.
+- *Confirmar pedido* está al final del resumen, para ver el costo de envío antes en el celular.
+- El teléfono usa un selector de país con banderas (`PhoneField`, SVG en `public/flags/`).
 
 ## Datos de prueba (provisionales)
 `npm run seed` separa cada presentación en su propio producto (la primera conserva la dirección web; las demás son `<slug>-<presentacion>`, ej. `yerba-mate-organica-250-g`) y carga precios, códigos y 3 zonas de envío **solo donde estén vacíos** (no pisa lo editado en el panel). Para encender la tienda al sembrar: `SEED_SHOP_ENABLED=1 npm run seed` (el seed nunca la apaga).

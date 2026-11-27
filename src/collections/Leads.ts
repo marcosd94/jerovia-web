@@ -1,14 +1,15 @@
 import type { CollectionConfig } from 'payload'
-import { canReadBackoffice, isAdmin, isAdminOrGestor, visibleTo } from '../access'
+import { canReadBackoffice, isAdminOrGestor, visibleTo, softDeleteOnly } from '../access'
 
 // Solicitudes de empresas (distribuidores y supermercados). Se crean desde el formulario público
 // del sitio (con validación en el servidor); desde el panel solo se leen y se les da seguimiento.
 export const Leads: CollectionConfig = {
   slug: 'leads',
+  trash: true, // eliminación lógica: los registros van a la papelera, nunca se pierden
   labels: { singular: 'Solicitud de empresa', plural: 'Solicitudes de empresas' },
   admin: { useAsTitle: 'company', group: 'Ventas', defaultColumns: ['company', 'name', 'kind', 'status', 'createdAt'], hidden: visibleTo('admin', 'gestor', 'visor') },
   defaultSort: '-createdAt',
-  access: { read: canReadBackoffice, create: isAdminOrGestor, update: isAdminOrGestor, delete: isAdmin },
+  access: { read: canReadBackoffice, create: isAdminOrGestor, update: isAdminOrGestor, delete: softDeleteOnly },
   fields: [
     { name: 'status', type: 'select', label: 'Estado', defaultValue: 'nuevo', options: [{ label: 'Nuevo', value: 'nuevo' }, { label: 'Contactado', value: 'contactado' }, { label: 'Cliente', value: 'cliente' }, { label: 'Descartado', value: 'descartado' }], admin: { position: 'sidebar' } },
     { name: 'company', type: 'text', label: 'Empresa', required: true },

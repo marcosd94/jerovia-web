@@ -20,7 +20,7 @@ Todas las pantallas funcionan igual (lo que en sistemas se llama ABM: altas, baj
 - **Ver la lista:** al entrar a una sección aparece la lista de registros, con buscador y filtros.
 - **Crear:** botón *Crear nuevo*, arriba a la derecha. Se completan los campos y se guarda.
 - **Editar:** se hace clic en el registro, se cambian los campos y se presiona *Guardar*.
-- **Eliminar:** dentro del registro, menú de los tres puntos y opción *Eliminar*. Antes de borrar conviene ocultarlo (ver más abajo).
+- **Eliminar:** dentro del registro, menú de los tres puntos y opción *Eliminar*. La eliminación es **lógica**: el registro va a la *Basura* (botón arriba a la derecha de cada listado) y nunca se pierde. Desde ahí el Administrador lo puede **restaurar**. El borrado definitivo no existe. Los pedidos y el registro de actividad nunca se pierden.
 
 **Qué puede hacer cada rol**
 
@@ -448,7 +448,7 @@ Es una lista de consulta: muestra quién cambió qué y cuándo (fecha, usuario,
 - **Compra mínima:** en *Configuración del sitio* hay un campo *Compra mínima* (por defecto Gs. 100.000). Si el carrito no llega, el cliente ve cuánto le falta y no puede confirmar.
 - **Teléfono para recibir comprobantes:** en *Configuración del sitio → Pagos*. Es el número de WhatsApp al que el cliente envía el comprobante; si está vacío se usa el WhatsApp general.
 - **Pedidos → Productos del pedido:** ahora se ven en una tarjeta compacta (cantidad × producto, precio y subtotal). Se quita un producto con el ícono de basurero; para agregar o corregir se abre *Agregar o corregir productos*. Los cambios se aplican al **Guardar**.
-- **Preparación de pedidos:** abre dentro del panel (con el menú). El rótulo de cada tarjeta distingue *Retiro en el local* (violeta) de *Envío a domicilio* (azul).
+- **Preparación de pedidos:** abre dentro del panel (con el menú). El rótulo de cada tarjeta distingue *Retiro en el local* (naranja) de *Envío a domicilio* (azul).
 - **Productos del sitio:** el selector de cantidad y los botones agregar / actualizar / quitar quedan a la derecha del producto; el teléfono tiene selector de país con banderas.
 
 - **Pedidos de retiro** se marcan en naranja en *Preparación de pedidos* (los envíos, en azul).

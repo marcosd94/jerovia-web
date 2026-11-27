@@ -8,11 +8,14 @@ const label = (doc: Record<string, unknown>): string => {
 /** Deja constancia de quién creó o modificó un registro (colección "Registro de actividad") */
 export const auditChange =
   (collection: string): CollectionAfterChangeHook =>
-  async ({ doc, operation, req }) => {
+  async ({ doc, previousDoc, operation, req }) => {
+    // Enviar a la papelera se registra como eliminación; restaurar, como modificación
+    const trashed = operation === 'update' && Boolean((doc as { deletedAt?: unknown }).deletedAt) && !(previousDoc as { deletedAt?: unknown } | undefined)?.deletedAt
+    const action = trashed ? 'delete' : operation
     try {
       await req.payload.create({
         collection: 'audit-log',
-        data: { collection, docId: String(doc.id), action: operation, userEmail: req.user?.email ?? 'sistema', summary: label(doc) },
+        data: { collection, docId: String(doc.id), action, userEmail: req.user?.email ?? 'sistema', summary: label(doc) },
         overrideAccess: true,
         req,
       })

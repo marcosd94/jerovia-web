@@ -1,12 +1,13 @@
 import path from 'path'
 import type { CollectionConfig } from 'payload'
-import { everyone, isAdmin, isAdminOrGestor } from '../access'
+import { everyone, isAdminOrGestor, softDeleteOnly } from '../access'
 
 export const Media: CollectionConfig = {
   slug: 'media',
+  trash: true, // eliminación lógica: los registros van a la papelera, nunca se pierden
   labels: { singular: 'Imagen', plural: 'Imágenes' },
   admin: { group: 'Contenido', useAsTitle: 'alt' },
-  access: { read: everyone, create: isAdminOrGestor, update: isAdminOrGestor, delete: isAdmin },
+  access: { read: everyone, create: isAdminOrGestor, update: isAdminOrGestor, delete: softDeleteOnly },
   upload: {
     staticDir: path.resolve(process.cwd(), 'media'),
     // Sin SVG a propósito: un SVG puede contener código malicioso.

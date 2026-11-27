@@ -27,9 +27,15 @@ Ningún sitio es "100 % seguro": esta lista dice qué está hecho y qué falta.
 - Verificación del correo al crear cuentas (se activa sola al definir `SMTP_HOST`) y vinculación de pedidos de invitado por correo verificado.
 - Doble factor de autenticación (TOTP) para el panel.
 - CSP con nonce, WAF/CDN (p. ej. Cloudflare) y Turnstile en formularios.
-- Límite de envíos compartido entre servidores (hoy es en memoria).
+- Límite de envíos compartido entre servidores (hoy es en memoria; en Vercel cada instancia cuenta por separado, así que en la demo es solo orientativo).
+- La CSP permite, además, los videos de YouTube (`youtube-nocookie.com`, `frame-src`) y las fotos de Vercel Blob (`img-src`).
 - Copias de seguridad automáticas con prueba de restauración.
 - Verificación de firma del webhook de la pasarela de pagos.
 - Páginas legales y política de privacidad revisadas por un abogado (Ley 7593/2025).
 - Prueba de penetración antes del lanzamiento.
 - Rotar claves y credenciales de producción; nunca usar las de desarrollo.
+
+
+## Eliminación lógica de datos
+
+Todas las colecciones usan la papelera de Payload (`trash: true`): eliminar solo marca `deletedAt`. La regla `softDeleteOnly` (`src/access/index.ts`) permite únicamente enviar a la papelera (solo Administrador) y bloquea el borrado definitivo, también por API. La cuenta de un cliente que se da de baja desde el sitio también se archiva: el correo original queda en `emailAnterior` y el correo activo se libera. El Registro de actividad no se puede borrar. Los pedidos del listado se abren filtrados en *Por atender* (editable en `OrdersListFilter.tsx`).

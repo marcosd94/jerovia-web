@@ -183,6 +183,7 @@ export interface User {
   roles: ('admin' | 'gestor' | 'visor' | 'logistica')[];
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
   email: string;
   resetPasswordToken?: string | null;
   resetPasswordExpiration?: string | null;
@@ -213,6 +214,7 @@ export interface Media {
   alt: string;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
   url?: string | null;
   thumbnailURL?: string | null;
   filename?: string | null;
@@ -269,6 +271,7 @@ export interface Category {
   active?: boolean | null;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -282,6 +285,7 @@ export interface Brand {
   description?: string | null;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
 }
 /**
  * Familias dentro de una marca. Ejemplo: la marca Jerovia tiene las líneas Orgánico y Natural.
@@ -304,6 +308,7 @@ export interface ProductLine {
   description?: string | null;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -379,6 +384,7 @@ export interface Product {
   certifications?: (number | Certification)[] | null;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
   _status?: ('draft' | 'published') | null;
 }
 /**
@@ -399,6 +405,7 @@ export interface Certification {
   order?: number | null;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -430,6 +437,7 @@ export interface Page {
   } | null;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
   _status?: ('draft' | 'published') | null;
 }
 /**
@@ -463,6 +471,7 @@ export interface Post {
   externalUrl?: string | null;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
   _status?: ('draft' | 'published') | null;
 }
 /**
@@ -492,6 +501,7 @@ export interface StoreLocation {
   active?: boolean | null;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -511,6 +521,7 @@ export interface Lead {
   locale?: string | null;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -524,6 +535,7 @@ export interface DeliveryZone {
   active?: boolean | null;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
 }
 /**
  * Personas que crearon una cuenta en la tienda. Las compras sin cuenta no aparecen acá, solo en Pedidos.
@@ -533,6 +545,10 @@ export interface DeliveryZone {
  */
 export interface Customer {
   id: number;
+  /**
+   * Se completa cuando la cuenta se elimina: el correo queda libre para registrarse de nuevo y el dato original se conserva acá.
+   */
+  emailAnterior?: string | null;
   name: string;
   phone: string;
   billing?: {
@@ -568,6 +584,7 @@ export interface Customer {
   internalNotes?: string | null;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
   email: string;
   resetPasswordToken?: string | null;
   resetPasswordExpiration?: string | null;
@@ -608,6 +625,9 @@ export interface Order {
   };
   items?:
     | {
+        /**
+         * Al elegirlo se completan solos el detalle, el código y el precio.
+         */
         product?: (number | null) | Product;
         label: string;
         sku?: string | null;
@@ -648,6 +668,7 @@ export interface Order {
   };
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -808,6 +829,7 @@ export interface UsersSelect<T extends boolean = true> {
   roles?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
   email?: T;
   resetPasswordToken?: T;
   resetPasswordExpiration?: T;
@@ -832,6 +854,7 @@ export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
   url?: T;
   thumbnailURL?: T;
   filename?: T;
@@ -889,6 +912,7 @@ export interface CategoriesSelect<T extends boolean = true> {
   active?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -901,6 +925,7 @@ export interface BrandsSelect<T extends boolean = true> {
   description?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -914,6 +939,7 @@ export interface ProductLinesSelect<T extends boolean = true> {
   description?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -953,6 +979,7 @@ export interface ProductsSelect<T extends boolean = true> {
   certifications?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
   _status?: T;
 }
 /**
@@ -969,6 +996,7 @@ export interface CertificationsSelect<T extends boolean = true> {
   order?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -982,6 +1010,7 @@ export interface PagesSelect<T extends boolean = true> {
   content?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
   _status?: T;
 }
 /**
@@ -1000,6 +1029,7 @@ export interface PostsSelect<T extends boolean = true> {
   externalUrl?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
   _status?: T;
 }
 /**
@@ -1019,6 +1049,7 @@ export interface StoreLocationsSelect<T extends boolean = true> {
   active?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1037,6 +1068,7 @@ export interface LeadsSelect<T extends boolean = true> {
   locale?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1049,12 +1081,14 @@ export interface DeliveryZonesSelect<T extends boolean = true> {
   active?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "customers_select".
  */
 export interface CustomersSelect<T extends boolean = true> {
+  emailAnterior?: T;
   name?: T;
   phone?: T;
   billing?:
@@ -1086,6 +1120,7 @@ export interface CustomersSelect<T extends boolean = true> {
   internalNotes?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
   email?: T;
   resetPasswordToken?: T;
   resetPasswordExpiration?: T;
@@ -1162,6 +1197,7 @@ export interface OrdersSelect<T extends boolean = true> {
       };
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

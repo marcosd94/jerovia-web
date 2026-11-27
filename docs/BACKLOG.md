@@ -62,7 +62,7 @@ Sin coordenadas: son cadenas con varias sucursales o no se pudieron identificar 
 | B-12 | Seguimiento de pedido para invitados por enlace del correo | P1 | M | El código secreto del pedido ya se genera. Falta la página y el correo. |
 | B-13 | Oferta de crear cuenta después de comprar y vinculación de pedidos por correo verificado | P2 | M | Solo pide elegir contraseña. |
 | B-14 | Correos de la tienda (confirmación de pedido, cambio de estado, envío) | P1 | M | Depende de B-30. Textos en tres idiomas. |
-| B-15 | Costos y tiempos de envío por zona, con la cobertura real | P1 | S | Las zonas existen y hay 3 de PRUEBA (Asunción, Gran Asunción, Interior); faltan las tarifas reales de la empresa. |
+| B-15 | Costos y tiempos de envío por zona, con la cobertura real; **compra mínima configurable ya hecha** | P1 | S | Las zonas existen y hay 3 de PRUEBA (Asunción, Gran Asunción, Interior); faltan las tarifas reales de la empresa. |
 | B-16 | Stock y disponibilidad por presentación | P2 | M | Hoy solo hay "Disponible" sí o no. Decidir si se controla cantidad. |
 | B-17 | Pantalla de conciliación de cobros contra el extracto | P2 | M | El modelo de datos ya está (campos de cobro y "Conciliado"). |
 | B-18 | Factura: definir cómo se emite (factura electrónica SIFEN u otro sistema) | P1 | M | Decisión con el contador de la empresa. Los datos de RUC y razón social ya se guardan. |
@@ -101,7 +101,8 @@ Sin coordenadas: son cadenas con varias sucursales o no se pudieron identificar 
 | B-39 | Integración continua en GitHub (compilar y revisar tipos en cada cambio) | P2 | S | |
 | B-40 | Monitoreo de errores y de disponibilidad | P2 | S | |
 | B-41 | Prueba de penetración antes del lanzamiento | P1 | M | |
-| B-42 | Subir el repositorio privado a GitHub | P1 | S | Lo hace Marcos con Git. |
+| ~~B-42~~ | ~~Subir el repositorio privado a GitHub~~ **HECHO** | P1 | S | Repositorio en GitHub; Vercel despliega en cada `git push`. |
+| B-43 | Demo en Vercel (Neon + Blob): cargar datos con el seed, proteger con *Deployment Protection* y probar el sitio completo | P1 | S | Guía: `docs/DESPLIEGUE-VERCEL.md`. Estado: desplegado; faltaba el seed para crear las tablas. En la demo el límite de intentos es orientativo (B-35). |
 
 ## 5. Panel y análisis
 
@@ -121,6 +122,8 @@ Sin coordenadas: son cadenas con varias sucursales o no se pudieron identificar 
 | V-01 | Que `npm run seed` funcione en la notebook de Marcos con Windows (el error de la base SQLite se corrigió dos veces; falta la confirmación). |
 | V-02 | Los nombres de botones del panel citados en el manual de usuario (*Crear nuevo*, *Guardar*, *Eliminar*) y el enlace de recuperación de contraseña, recorriendo el panel real. |
 | V-03 | Que los datos de ejemplo del sitio (puntos de venta, productos, textos) estén validados por la empresa. Ver `docs/CONTENIDO-A-CONFIRMAR.md`. |
+| V-04 | Que el sitio de la demo en Vercel cargue con datos, que las fotos se guarden en Blob y que los videos de YouTube de *Nosotros* se vean (en el sandbox no se pudieron probar). |
+| V-05 | Que el historial de GitHub no tenga líneas de coautoría de herramientas (`git log --format=%B` sin «claude»). |
 
 ## Orden de trabajo sugerido
 

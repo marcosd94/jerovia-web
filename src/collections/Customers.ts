@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { siteUrl } from '../lib/site-url'
-import { fieldAdminOrGestor, hasRole, isAdmin, isCustomer, visibleTo } from '../access'
+import { fieldAdminOrGestor, hasRole, isCustomer, visibleTo, softDeleteOnly } from '../access'
 import { auditChange, auditDelete } from '../lib/audit'
 
 const serverURL = siteUrl
@@ -15,6 +15,7 @@ const mail = (title: string, body: string, url: string, button: string) =>
 /** Cuentas de clientes de la tienda. Colección separada del personal (users): un cliente nunca entra al panel. */
 export const Customers: CollectionConfig = {
   slug: 'customers',
+  trash: true, // eliminación lógica: los registros van a la papelera, nunca se pierden
   labels: { singular: 'Cliente', plural: 'Clientes' },
   admin: {
     useAsTitle: 'email',
@@ -55,7 +56,7 @@ export const Customers: CollectionConfig = {
       if (isCustomer(user) && user) return { id: { equals: user.id } }
       return false
     },
-    delete: isAdmin, // el cliente elimina su cuenta desde el sitio (acción de servidor)
+    delete: softDeleteOnly, // el cliente elimina su cuenta desde el sitio (acción de servidor)
   },
   hooks: {
     beforeValidate: [
@@ -70,6 +71,7 @@ export const Customers: CollectionConfig = {
     afterDelete: [auditDelete('customers')],
   },
   fields: [
+    { name: 'emailAnterior', type: 'text', label: 'Correo original (cuenta eliminada)', admin: { readOnly: true, description: 'Se completa cuando la cuenta se elimina: el correo queda libre para registrarse de nuevo y el dato original se conserva acá.' } },
     { name: 'name', type: 'text', label: 'Nombre y apellido', required: true },
     { name: 'phone', type: 'text', label: 'Teléfono o WhatsApp', required: true },
     {

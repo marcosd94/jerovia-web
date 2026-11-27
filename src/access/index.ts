@@ -19,6 +19,8 @@ export const isAdmin: Access = ({ req: { user } }) => hasRole(user, 'admin')
 export const isAdminOrGestor: Access = ({ req: { user } }) => hasRole(user, 'admin', 'gestor')
 export const canReadBackoffice: Access = ({ req: { user } }) => hasRole(user, 'admin', 'gestor', 'visor')
 export const isAnyStaff: Access = ({ req: { user } }) => hasRole(user, 'admin', 'gestor', 'visor', 'logistica')
+/** Eliminación lógica: solo permite enviar a la papelera (marcar deletedAt). El borrado definitivo queda bloqueado para todos. */
+export const softDeleteOnly: Access = ({ req: { user }, data }) => hasRole(user, 'admin') && Boolean((data as { deletedAt?: unknown } | undefined)?.deletedAt)
 export const nobody: Access = () => false
 export const everyone: Access = () => true
 

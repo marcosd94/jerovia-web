@@ -1,13 +1,14 @@
 import type { CollectionConfig } from 'payload'
-import { everyone, isAdmin, isAdminOrGestor } from '../access'
+import { everyone, isAdminOrGestor, softDeleteOnly } from '../access'
 import { slugFrom } from '../lib/slug'
 
 export const Categories: CollectionConfig = {
   slug: 'categories',
+  trash: true, // eliminación lógica: los registros van a la papelera, nunca se pierden
   labels: { singular: 'Categoría', plural: 'Categorías' },
   admin: { useAsTitle: 'name', group: 'Catálogo', defaultColumns: ['name', 'order', 'active'] },
   defaultSort: 'order',
-  access: { read: everyone, create: isAdminOrGestor, update: isAdminOrGestor, delete: isAdmin },
+  access: { read: everyone, create: isAdminOrGestor, update: isAdminOrGestor, delete: softDeleteOnly },
   fields: [
     { name: 'name', type: 'text', label: 'Nombre', localized: true, required: true },
     { name: 'slug', type: 'text', label: 'Dirección web', required: true, unique: true, index: true, hooks: { beforeValidate: [slugFrom('name')] }, admin: { position: 'sidebar', description: 'Se completa sola a partir del nombre.' } },

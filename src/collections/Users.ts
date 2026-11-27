@@ -1,9 +1,10 @@
 import type { CollectionConfig } from 'payload'
-import { ROLE_OPTIONS, fieldAdminOnly, hasRole, isAdmin, isStaffUser, visibleTo } from '../access'
+import { ROLE_OPTIONS, fieldAdminOnly, isAdmin, hasRole, isStaffUser, visibleTo, softDeleteOnly } from '../access'
 import { auditChange, auditDelete } from '../lib/audit'
 
 export const Users: CollectionConfig = {
   slug: 'users',
+  trash: true, // eliminación lógica: los registros van a la papelera, nunca se pierden
   labels: { singular: 'Usuario', plural: 'Usuarios' },
   admin: { useAsTitle: 'email', group: 'Sistema', defaultColumns: ['email', 'name', 'roles'], hidden: visibleTo('admin') },
   auth: {
@@ -18,7 +19,7 @@ export const Users: CollectionConfig = {
     read: ({ req: { user } }) => (hasRole(user, 'admin') ? true : user && isStaffUser(user) ? { id: { equals: user.id } } : false),
     create: isAdmin,
     update: ({ req: { user } }) => (hasRole(user, 'admin') ? true : user && isStaffUser(user) ? { id: { equals: user.id } } : false),
-    delete: isAdmin,
+    delete: softDeleteOnly,
   },
   hooks: {
     beforeValidate: [

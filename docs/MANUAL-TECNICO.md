@@ -160,9 +160,10 @@ Los permisos se definen **en cada colección** (`access`) con las funciones de `
 | Variable | Obligatoria | Para qué |
 | --- | --- | --- |
 | `PAYLOAD_SECRET` | Sí (mín. 32 caracteres en producción) | Firma las sesiones. La aplicación no arranca en producción sin ella. |
-| `NEXT_PUBLIC_SERVER_URL` | Sí | Dirección pública del sitio. |
+| `NEXT_PUBLIC_SERVER_URL` | En el notebook no; en Vercel opcional | Dirección pública del sitio. Si falta, se usa `http://localhost:3000` o, en Vercel, la dirección estable del proyecto (`src/lib/site-url.ts`). Definirla solo con dominio propio. |
 | `NEXT_PUBLIC_DEFAULT_LOCALE` | No | Idioma por defecto (`es`). |
-| `DATABASE_URL` | Sí | `file:./data/dev.db` (desarrollo) o `postgres://...` (producción). |
+| `DATABASE_URL` (o `POSTGRES_URL`) | Sí | `file:./data/dev.db` (desarrollo) o `postgres://...` (producción). En Vercel sin base de datos, el sitio publicado falla con un mensaje claro. |
+| `BLOB_READ_WRITE_TOKEN` | Solo en Vercel | Activa el guardado de fotos en Vercel Blob. Vacío = carpeta `media/`. |
 | `NEXT_PUBLIC_GA_ID` | No | Google Analytics 4. Vacío = sin medición. |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`, `SMTP_FROM_NAME` | Producción | Correo. Con `SMTP_HOST` se exige verificar el correo de las cuentas. |
 | `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`, `SEED_DEMO_USERS` | Solo `npm run seed` | Primer administrador y usuarios de ejemplo (solo desarrollo). |
@@ -176,9 +177,11 @@ Los secretos nunca van en el código ni en Git. En producción se cargan en el p
 | Comando | `npm run dev` | `npm run build` y `npm start` |
 | Base de datos | SQLite, tablas creadas solas | PostgreSQL, **migraciones** versionadas |
 | Correo | Opcional | Obligatorio |
-| Archivos subidos | Carpeta `media/` | Almacenamiento persistente (disco o servicio de objetos) |
+| Archivos subidos | Carpeta `media/` | Almacenamiento persistente (disco o servicio de objetos; en Vercel, Blob) |
 
 **Abrir el sitio de desarrollo desde otro equipo (celular, otra PC).** Se entra por la IP de la red, por ejemplo `http://192.168.100.74:3000`. Next.js bloquea en desarrollo los recursos internos que vienen de direcciones no declaradas, y entonces la página se ve pero no se activa (el menú no se achica, los formularios no responden). Por eso `next.config.mjs` declara `allowedDevOrigins` con los rangos de red local (`192.168.*.*`, `10.*.*.*`, `172.16.*.*`). Si la red usa otro rango, se agrega ahí y se reinicia `npm run dev`. En producción no tiene efecto.
+
+**Demo en Vercel:** guía paso a paso en `docs/DESPLIEGUE-VERCEL.md` (Neon + Blob + seed una sola vez).
 
 Antes de publicar (detalle en `docs/SEGURIDAD.md`):
 
@@ -194,7 +197,7 @@ Antes de publicar (detalle en `docs/SEGURIDAD.md`):
 
 - La rama `main` siempre debe compilar: `npm run typecheck` y `npm run build` sin errores.
 - Un cambio de modelo implica: archivo de la colección, `npm run generate:types`, migración (producción) y sección en `docs/MANUAL-DE-USUARIO.md`.
-- Los commits terminan con la línea de autoría que corresponda; los mensajes describen el *porqué*.
+- Los commits no llevan líneas de coautoría de herramientas; los mensajes describen el *porqué*. Se agrupan por tema.
 - `.env`, `data/`, `media/` y `public/brand/` están en `.gitignore`.
 
 ### Marca, línea y categoría

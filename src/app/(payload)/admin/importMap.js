@@ -22,8 +22,10 @@ import { UnderlineFeatureClient as UnderlineFeatureClient_e70f5e05f09f93e00b997e
 import { BoldFeatureClient as BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { OrderActions as OrderActions_42735e497e40d1f2d21d56bf07558f53 } from '../../../components/admin/OrderActions'
+import { OrderItemAutofill as OrderItemAutofill_b302c1d81ef8990a1799d13601a6ea2a } from '../../../components/admin/OrderItemAutofill'
 import { OrderItemsField as OrderItemsField_942daa3c36eeaba471289a60195b15e7 } from '../../../components/admin/OrderItemsField'
 import { OrderItemRowLabel as OrderItemRowLabel_2a0c3adbeb47d6225a83ab4e61d1a813 } from '../../../components/admin/OrderItemRowLabel'
+import { OrdersListFilter as OrdersListFilter_6ebf7e2c565ce3ec05ad073b307e81f1 } from '../../../components/admin/OrdersListFilter'
 import { AdminLogout as AdminLogout_b7e7c352407d2cd91f6465689d708bec } from '../../../components/admin/AdminLogout'
 import { AdminIcon as AdminIcon_7be396d0766c6c490887ef074dd0ced4 } from '../../../components/admin/AdminIcon'
 import { AdminLogo as AdminLogo_27eed1898e8caadb2fd2266b54bb4509 } from '../../../components/admin/AdminLogo'
@@ -59,8 +61,10 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#BoldFeatureClient": BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#ItalicFeatureClient": ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "/components/admin/OrderActions#OrderActions": OrderActions_42735e497e40d1f2d21d56bf07558f53,
+  "/components/admin/OrderItemAutofill#OrderItemAutofill": OrderItemAutofill_b302c1d81ef8990a1799d13601a6ea2a,
   "/components/admin/OrderItemsField#OrderItemsField": OrderItemsField_942daa3c36eeaba471289a60195b15e7,
   "/components/admin/OrderItemRowLabel#OrderItemRowLabel": OrderItemRowLabel_2a0c3adbeb47d6225a83ab4e61d1a813,
+  "/components/admin/OrdersListFilter#OrdersListFilter": OrdersListFilter_6ebf7e2c565ce3ec05ad073b307e81f1,
   "/components/admin/AdminLogout#AdminLogout": AdminLogout_b7e7c352407d2cd91f6465689d708bec,
   "/components/admin/AdminIcon#AdminIcon": AdminIcon_7be396d0766c6c490887ef074dd0ced4,
   "/components/admin/AdminLogo#AdminLogo": AdminLogo_27eed1898e8caadb2fd2266b54bb4509,

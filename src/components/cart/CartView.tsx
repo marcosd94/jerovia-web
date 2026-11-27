@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { quoteCart } from '@/app/(frontend)/[locale]/carrito/actions'
 import type { Quote } from '@/lib/shop'
 import { useCart } from './CartProvider'
+import { LeafMark } from '../LeafMark'
 import { QtyStepper } from './QtyStepper'
 import { TrashIcon } from './TrashIcon'
 
@@ -48,7 +49,7 @@ export function CartView({ locale, m, base, minOrder }: Props) {
       <ul className="cart-list">
         {quote.items.map((it) => (
           <li key={it.p} className={`cart-item${it.ok ? '' : ' is-off'}`}>
-            <div className="cart-thumb">{it.image ? <img src={it.image} alt="" /> : null}</div>
+            <div className="cart-thumb">{it.image ? <img src={it.image} alt="" /> : <LeafMark className="cart-thumb-ph" />}</div>
             <div className="cart-info">
               <p className="cart-name">{it.slug ? <Link href={`${base}/productos/${it.slug}`}>{it.name}</Link> : it.name || '—'}</p>
               <p className="cart-label">{it.label}</p>

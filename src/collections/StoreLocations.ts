@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { isAdmin, isAdminOrGestor, isStaffUser, visibleTo } from '../access'
+import { isAdminOrGestor, isStaffUser, visibleTo, softDeleteOnly } from '../access'
 
 /** Saca latitud y longitud de un enlace largo de Google Maps */
 export function coordsFromMapsUrl(url: string): { lat: number; lng: number } | null {
@@ -17,10 +17,11 @@ export function coordsFromMapsUrl(url: string): { lat: number; lng: number } | n
 
 export const StoreLocations: CollectionConfig = {
   slug: 'store-locations',
+  trash: true, // eliminación lógica: los registros van a la papelera, nunca se pierden
   labels: { singular: 'Punto de venta', plural: 'Puntos de venta' },
   admin: { useAsTitle: 'name', group: 'Contenido', defaultColumns: ['name', 'kind', 'region', 'city', 'active'], hidden: visibleTo('admin', 'gestor', 'visor') },
   defaultSort: 'name',
-  access: { read: ({ req: { user } }) => (isStaffUser(user) ? true : { active: { equals: true } }), create: isAdminOrGestor, update: isAdminOrGestor, delete: isAdmin },
+  access: { read: ({ req: { user } }) => (isStaffUser(user) ? true : { active: { equals: true } }), create: isAdminOrGestor, update: isAdminOrGestor, delete: softDeleteOnly },
   hooks: {
     // Si se pega un enlace largo de Google Maps y faltan las coordenadas, se completan solas
     beforeValidate: [

@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { everyone, isAdmin, isAdminOrGestor } from '../access'
+import { everyone, isAdminOrGestor, softDeleteOnly } from '../access'
 import { auditChange, auditDelete } from '../lib/audit'
 import { slugFrom } from '../lib/slug'
 
@@ -7,10 +7,11 @@ import { slugFrom } from '../lib/slug'
 // La línea dice "de qué familia de la marca es" un producto; la categoría dice "qué tipo de producto es" (yerba mate, azúcar, stevia…).
 export const ProductLines: CollectionConfig = {
   slug: 'product-lines',
+  trash: true, // eliminación lógica: los registros van a la papelera, nunca se pierden
   labels: { singular: 'Línea', plural: 'Líneas' },
   admin: { useAsTitle: 'name', group: 'Catálogo', defaultColumns: ['name', 'brand', 'order'], description: 'Familias dentro de una marca. Ejemplo: la marca Jerovia tiene las líneas Orgánico y Natural.' },
   defaultSort: 'order',
-  access: { read: everyone, create: isAdminOrGestor, update: isAdminOrGestor, delete: isAdmin },
+  access: { read: everyone, create: isAdminOrGestor, update: isAdminOrGestor, delete: softDeleteOnly },
   hooks: { afterChange: [auditChange('product-lines')], afterDelete: [auditDelete('product-lines')] },
   fields: [
     { name: 'name', type: 'text', label: 'Nombre de la línea', localized: true, required: true, admin: { description: 'Solo el nombre de la línea, sin repetir la marca. Ejemplo: Orgánico.' } },
